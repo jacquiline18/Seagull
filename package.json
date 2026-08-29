@@ -1,0 +1,11 @@
+{
+  "name": "seagull-general-supply",
+  "version": "1.0.0",
+  "description": "Seagull General Supply Limited - Full-Stack Laboratory Equipment Portal",
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build:client": "cd client && npm run build",
+    "start": "cd server && npm start"
+  }
+}

@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seagull General Supply Limited | Laboratory & Chemistry Equipment Tanzania</title>
+  <link rel="icon" type="image/svg+xml" href="client/public/seagull-logo.svg" />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons & React Standalone -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Include Stylesheets -->
+  <link rel="stylesheet" href="client/src/styles/index.css" />
+  <link rel="stylesheet" href="client/src/styles/components.css" />
+  <link rel="stylesheet" href="client/src/styles/animations.css" />
+
+  <style>
+    .d-none-mobile { display: inline-flex; }
+    .d-none-sm { display: inline-flex; }
+    @media (max-width: 768px) {
+      .d-none-mobile { display: none !important; }
+      .d-none-sm { display: none !important; }
+      .nav-links-desktop { display: none !important; }
+      .catalog-layout-grid { grid-template-columns: 1fr !important; }
+      .order-form-layout-grid { grid-template-columns: 1fr !important; }
+      .cart-layout-grid, .checkout-layout-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React Standalone Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    // --- COMPANY BRANDING & DATA ---
+    const COMPANY_INFO = {
+      name: 'Seagull General Supply Limited',
+      tagline: 'Services Beyond Measure!',
+      phone: '+255 (0) 743 611 101',
+      phoneClean: '+255743611101',
+      email: 'seagull.tech20@gmail.com',
+      website: 'www.seagull.co.tz',
+      instagram: 'Seagull5816',
+      instagramUrl: 'https://www.instagram.com/seagull5816',
+      sectors: [
+        { title: 'Academic & University Labs', desc: 'Equipping chemistry, physics, biology, and engineering faculties.' },
+        { title: 'Medical & Clinical Diagnostics', desc: 'Precision instruments for hospital pathology and diagnostic laboratories.' },
+        { title: 'Mining & Industrial QC', desc: 'Robust analytical balances, testing kits, and quality control systems.' },
+        { title: 'Water & Environmental Testing', desc: 'pH meters, spectrophotometers, and water purification analysis tools.' },
+        { title: 'Secondary Science Education', desc: 'Safe, durable glassware and science kits for secondary schools.' },
+        { title: 'Pharmaceutical & Research', desc: 'GLP/ISO compliant instruments for rigorous formulation research.' }
+      ]
+    };
+
+    const TANZANIA_REGIONS = [
+      'Dar es Salaam', 'Dodoma (Capital)', 'Arusha', 'Mwanza', 'Mbeya', 'Morogoro',
+      'Tanga', 'Kilimanjaro / Moshi', 'Iringa', 'Tabora', 'Kigoma', 'Mtwara',
+      'Ruvuma / Songea', 'Shinyanga', 'Kagera / Bukoba', 'Mara / Musoma', 'Manyara / Babati',
+      'Singida', 'Rukwa / Sumbawanga', 'Katavi / Mpanda', 'Njombe', 'Geita',
+      'Simiyu / Bariadi', 'Songwe / Vwawa', 'Lindi', 'Pwani / Kibaha', 'Zanzibar'
+    ];
+
+    const CATEGORIES = [
+      { id: 'instruments', name: 'Laboratory Instruments', icon: 'microscope', count: 28, description: 'High-precision analytical equipment, microscopes, centrifuges, and incubators.' },
+      { id: 'chemistry', name: 'Chemistry Equipment', icon: 'flask-conical', count: 34, description: 'Magnetic stirrers, heating mantles, hot plates, distillation units, and rotary evaporators.' },
+      { id: 'measuring', name: 'Measuring Equipment', icon: 'gauge', count: 22, description: 'Analytical balances, digital pH meters, spectrophotometers, thermometers, and refractometers.' },
+      { id: 'glassware', name: 'Glassware', icon: 'test-tube-2', count: 45, description: 'Premium ISO Borosilicate 3.3 beakers, conical flasks, burettes, pipettes, and cylinders.' },
+      { id: 'safety', name: 'Safety Equipment', icon: 'shield-check', count: 18, description: 'Chemical splash goggles, eye wash stations, nitrile gloves, lab coats, and safety shields.' },
+      { id: 'consumables', name: 'Laboratory Consumables', icon: 'layers', count: 50, description: 'Whatman filter papers, pipette tips, test tubes, petri dishes, and reagent bottles.' }
+    ];
+
+    // Initial inventory starts empty - inventory is added by Admin in the Admin Portal!
+    const INITIAL_PRODUCTS = [];
+
+    // Main React Application
+    function App() {
+      const [currentRoute, setCurrentRoute] = useState('intro'); // Starts with Introduction Page as requested!
+      const [products, setProducts] = useState(() => {
+        const saved = localStorage.getItem('sgl_preview_products');
+        if (saved) {
+          try { return JSON.parse(saved); } catch {}
+        }
+        return [];
+      });
+      const [cart, setCart] = useState([]);
+      const [selectedProduct, setSelectedProduct] = useState(null);
+      const [toast, setToast] = useState(null);
+      const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+
+      // Admin Add/Edit Modal
+      const [adminModalOpen, setAdminModalOpen] = useState(false);
+      const [editingProd, setEditingProd] = useState(null);
+      const [adminForm, setAdminForm] = useState({
+        name: '',
+        category: 'Laboratory Instruments',
+        categoryId: 'instruments',
+        sku: '',
+        price: '',
+        stock: 10,
+        image: '',
+        description: '',
+        featured: true
+      });
+      
+      // Filter states
+      const [categoryFilter, setCategoryFilter] = useState('all');
+      const [searchFilter, setSearchFilter] = useState('');
+      const [priceFilter, setPriceFilter] = useState(8000000);
+      const [sortFilter, setSortFilter] = useState('featured');
+
+      const saveProducts = (newProducts) => {
+        setProducts(newProducts);
+        localStorage.setItem('sgl_preview_products', JSON.stringify(newProducts));
+      };
+
+      // Helper to add sample item easily in admin
+      const addSampleProductToAdmin = (sample) => {
+        const item = {
+          id: 'prod-' + Date.now(),
+          name: sample.name,
+          category: sample.category,
+          categoryId: sample.categoryId,
+          sku: sample.sku || 'SGL-' + Math.floor(1000 + Math.random() * 9000),
+          price: sample.price,
+          stock: sample.stock || 10,
+          image: sample.image || '',
+          description: sample.description || '',
+          featured: true
+        };
+        const updated = [item, ...products];
+        saveProducts(updated);
+        showToast(`Added "${sample.name}" to inventory & featured on Home!`);
+      };
+
+      // Orders state
+      const [orders, setOrders] = useState([
+        {
+          id: 'SGL-ORD-841920',
+          customer: { name: 'Dr. Frank Masanja', company: 'University of Dar es Salaam (Chemistry)', phone: '+255 754 123 456', deliveryAddress: 'Chemistry Block, Dar es Salaam' },
+          products: [{ name: 'Precision Digital Analytical Balance', price: 1850000, quantity: 2 }],
+          totalAmount: 3700000,
+          status: 'Confirmed',
+          createdAt: new Date().toISOString()
+        }
+      ]);
+
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+
+      const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
+      };
+
+      const addToCart = (product, qty = 1) => {
+        setCart(prev => {
+          const exists = prev.find(p => p.id === product.id);
+          if (exists) {
+            return prev.map(p => p.id === product.id ? { ...p, quantity: p.quantity + qty } : p);
+          }
+          return [...prev, { ...product, quantity: qty }];
+        });
+        showToast(`Added ${qty} × ${product.name} to cart`);
+      };
+
+      const updateCartQty = (id, newQty) => {
+        if (newQty <= 0) {
+          setCart(prev => prev.filter(p => p.id !== id));
+        } else {
+          setCart(prev => prev.map(p => p.id === id ? { ...p, quantity: newQty } : p));
+        }
+      };
+
+      const subtotal = cart.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+      const cartCount = cart.reduce((acc, i) => acc + i.quantity, 0);
+      const formatTZS = (val) => 'TZS ' + Number(val).toLocaleString();
+
+      const navigateTo = (route, param = null) => {
+        window.scrollTo(0, 0);
+        setCurrentRoute(route);
+        if (route === 'details' && param) {
+          setSelectedProduct(param);
+        } else if (route === 'products' && param) {
+          setCategoryFilter(param);
+        }
+      };
+
+      const filteredProducts = useMemo(() => {
+        return products.filter(p => {
+          if (categoryFilter !== 'all' && p.categoryId !== categoryFilter) return false;
+          if (searchFilter) {
+            const q = searchFilter.toLowerCase();
+            if (!p.name.toLowerCase().includes(q) && !p.sku.toLowerCase().includes(q)) return false;
+          }
+          if (p.price > priceFilter) return false;
+          return true;
+        }).sort((a, b) => {
+          if (sortFilter === 'price-low') return a.price - b.price;
+          if (sortFilter === 'price-high') return b.price - a.price;
+          if (sortFilter === 'name') return a.name.localeCompare(b.name);
+          return 0;
+        });
+      }, [products, categoryFilter, searchFilter, priceFilter, sortFilter]);
+
+      return (
+        <div className="app-container">
+          {/* Top Utility Bar */}
+          {currentRoute !== 'intro' && (
+            <div style={{ backgroundColor: '#1B4268', color: '#E2E8F0', fontSize: '0.8125rem', padding: '0.45rem 0' }}>
+              <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                  <a href={`tel:${COMPANY_INFO.phoneClean}`} style={{ color: '#FFFFFF', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <i data-lucide="phone" style={{ width: 14, height: 14, color: '#2E8BC9' }}></i>
+                    <span>{COMPANY_INFO.phone}</span>
+                  </a>
+                  <a href={`mailto:${COMPANY_INFO.email}`} style={{ color: '#FFFFFF', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }} className="d-none-sm">
+                    <i data-lucide="mail" style={{ width: 14, height: 14, color: '#2E8BC9' }}></i>
+                    <span>{COMPANY_INFO.email}</span>
+                  </a>
+                </div>
+                <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                  <a href={COMPANY_INFO.instagramUrl} target="_blank" style={{ color: '#FFFFFF', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <i data-lucide="instagram" style={{ width: 14, height: 14, color: '#E1306C' }}></i>
+                    <span>@{COMPANY_INFO.instagram}</span>
+                  </a>
+                  {isAdminLoggedIn ? (
+                    <button onClick={() => navigateTo('admin-dashboard')} style={{ background: 'none', color: '#93C5FD', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <i data-lucide="shield-check" style={{ width: 14, height: 14 }}></i>
+                      <span>Admin Panel</span>
+                    </button>
+                  ) : (
+                    <button onClick={() => navigateTo('admin-login')} style={{ background: 'none', color: '#E2E8F0', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <i data-lucide="user" style={{ width: 14, height: 14 }}></i>
+                      <span>Admin Login</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sticky White Navbar with Official Logo */}
+          {currentRoute !== 'intro' && (
+            <header className="navbar-wrapper">
+              <div className="container">
+                <div className="navbar-container">
+                  <div className="brand-logo-link" onClick={() => navigateTo('home')} style={{ cursor: 'pointer' }}>
+                    <img src="client/public/seagull-logo.svg" alt="Seagull Logo" className="brand-logo-img" style={{ width: '52px', height: '52px' }} />
+                    <div className="brand-text-block">
+                      <span className="brand-company-title" style={{ color: '#163A59', fontSize: '1.15rem' }}>SEAGULL</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1B4268', letterSpacing: '0.04em' }}>GENERAL SUPPLY LIMITED</span>
+                      <span className="brand-tagline-text" style={{ color: '#2E8BC9', fontStyle: 'italic', textTransform: 'none', fontWeight: 700 }}>"Services Beyond Measure!"</span>
+                    </div>
+                  </div>
+
+                  <div className="nav-links-desktop">
+                    <button className={`nav-link ${currentRoute === 'home' ? 'active' : ''}`} onClick={() => navigateTo('home')} style={{ background: 'none' }}>Home</button>
+                    <button className={`nav-link ${currentRoute === 'order-request' ? 'active' : ''}`} onClick={() => navigateTo('order-request')} style={{ background: 'none' }}>Request Order</button>
+                    <button className={`nav-link ${currentRoute === 'products' ? 'active' : ''}`} onClick={() => navigateTo('products')} style={{ background: 'none' }}>Products</button>
+                    <button className={`nav-link ${currentRoute === 'about' ? 'active' : ''}`} onClick={() => navigateTo('about')} style={{ background: 'none' }}>About Us</button>
+                    <button className={`nav-link ${currentRoute === 'contact' ? 'active' : ''}`} onClick={() => navigateTo('contact')} style={{ background: 'none' }}>Contact</button>
+                    <button className="nav-link" onClick={() => navigateTo('intro')} style={{ background: 'none', color: '#64748B', fontSize: '0.8rem' }}>Intro Page</button>
+                  </div>
+
+                  <div className="nav-actions">
+                    <button className="cart-btn-indicator" onClick={() => navigateTo('cart')} title="Shopping Cart">
+                      <i data-lucide="shopping-cart" style={{ width: 19, height: 19, color: '#163A59' }}></i>
+                      {cartCount > 0 && <span className="cart-badge-count">{cartCount}</span>}
+                    </button>
+
+                    <button onClick={() => navigateTo('order-request')} className="btn btn-primary btn-sm d-none-mobile" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
+                      <i data-lucide="clipboard-list" style={{ width: 15, height: 15 }}></i>
+                      <span>Request Order</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </header>
+          )}
+
+          {/* MAIN APPLICATION PAGES */}
+          <main className="main-content">
+            {/* 1. INTRO / WELCOME FIRST PAGE */}
+            {currentRoute === 'intro' && (
+              <IntroSection 
+                onOrderRequest={() => navigateTo('order-request')}
+                onExplore={() => navigateTo('home')} 
+              />
+            )}
+
+            {/* 2. ORDER REQUEST PAGE */}
+            {currentRoute === 'order-request' && (
+              <OrderRequestSection 
+                cart={cart}
+                formatTZS={formatTZS}
+                products={products}
+                onOrderSubmitted={(newOrd) => {
+                  setOrders(prev => [newOrd, ...prev]);
+                  setCart([]);
+                  showToast('Order & Quotation Request Submitted Successfully!');
+                }}
+                onExplore={() => navigateTo('products')}
+              />
+            )}
+
+            {/* 3. HOME PAGE */}
+            {currentRoute === 'home' && (
+              <div>
+                {/* Hero with Blue & White theme */}
+                <section className="section section-dark science-grid-dark" style={{ backgroundColor: '#1B4268', paddingTop: '4rem', paddingBottom: '5rem' }}>
+                  <div className="container">
+                    <div className="grid-2" style={{ alignItems: 'center', gap: '3rem' }}>
+                      <div>
+                        <span className="section-tag dark-tag" style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.3)' }}>
+                          Premier Tanzania Laboratory Suppliers
+                        </span>
+                        <h1 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.5rem)', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.15, marginBottom: '1.25rem' }}>
+                          Precision Equipment for Modern Laboratories
+                        </h1>
+                        <p style={{ fontSize: '1.15rem', color: '#DBEAFE', marginBottom: '2rem', lineHeight: 1.6 }}>
+                          Explore reliable chemistry, laboratory and scientific equipment supplied by <strong>Seagull General Supply Limited</strong> across all 31 regions of Tanzania.
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          <button onClick={() => navigateTo('order-request')} className="btn btn-cyan btn-lg" style={{ backgroundColor: '#2E8BC9', color: '#FFFFFF', borderColor: '#2E8BC9' }}>
+                            <span>Request Order / Quotation</span>
+                            <i data-lucide="arrow-right" style={{ width: 18, height: 18 }}></i>
+                          </button>
+                          <button onClick={() => navigateTo('products')} className="btn btn-outline-white btn-lg">
+                            <span>Explore Equipment</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '2px solid rgba(46, 139, 201, 0.4)', boxShadow: 'var(--shadow-xl)', position: 'relative' }}>
+                          <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80" alt="Laboratory equipment" style={{ width: '100%', height: '390px', objectFit: 'cover' }} />
+                          <div className="card-glass-dark" style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', padding: '0.85rem 1.25rem', borderRadius: 'var(--radius-md)' }}>
+                            <div style={{ fontSize: '0.75rem', color: '#93C5FD', fontWeight: 700 }}>SEAGULL GUARANTEE</div>
+                            <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>"Services Beyond Measure!"</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Categories */}
+                <section className="section science-grid-bg">
+                  <div className="container">
+                    <div className="section-header">
+                      <span className="section-tag" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>Classifications</span>
+                      <h2 className="section-title">Product Categories</h2>
+                      <p className="section-subtitle">Analytical instruments, chemistry glassware, measuring gear, safety equipment and consumables.</p>
+                    </div>
+                    <div className="grid-3">
+                      {CATEGORIES.map(cat => (
+                        <div key={cat.id} className="category-card" onClick={() => navigateTo('products', cat.id)}>
+                          <div className="category-icon-wrapper" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>
+                            <i data-lucide={cat.icon} style={{ width: 28, height: 28 }}></i>
+                          </div>
+                          <h3 className="category-title">{cat.name}</h3>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>{cat.description}</p>
+                          <span className="category-count">{cat.count}+ Items Available</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Featured Products - Only displays items added by admin */}
+                <section className="section" style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid var(--color-border)' }}>
+                  <div className="container">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div>
+                        <span className="section-tag" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>Inventory & Supplies</span>
+                        <h2 className="section-title" style={{ margin: 0, color: '#163A59' }}>Featured Laboratory Inventory</h2>
+                        <p style={{ color: '#64748B', fontSize: '0.95rem', margin: '0.4rem 0 0 0' }}>
+                          {products.filter(p => p.featured).length > 0
+                            ? 'High-demand instruments and essential supplies ready for institutional dispatch.'
+                            : 'Official inventory is maintained live by our admin team. You can request any custom chemical or equipment below.'}
+                        </p>
+                      </div>
+                      {products.length > 0 && (
+                        <button onClick={() => navigateTo('products')} className="btn btn-outline" style={{ borderColor: '#1B4268', color: '#1B4268' }}>
+                          View Full Catalogue ({products.length}) →
+                        </button>
+                      )}
+                    </div>
+
+                    {products.filter(p => p.featured).length > 0 ? (
+                      <div className="grid-4">
+                        {products.filter(p => p.featured).map(prod => (
+                          <div key={prod.id} className="product-card">
+                            <div className="product-image-wrap" onClick={() => navigateTo('details', prod)} style={{ cursor: 'pointer' }}>
+                              {prod.image ? (
+                                <img src={prod.image} alt={prod.name} className="product-image" />
+                              ) : (
+                                <div style={{ height: '180px', backgroundColor: '#EFF6FF', color: '#1B4268', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <i data-lucide="package" style={{ width: 48, height: 48 }}></i>
+                                </div>
+                              )}
+                              <div className="product-badge-overlay">
+                                <span className="badge badge-in-stock">In Stock</span>
+                              </div>
+                            </div>
+                            <div className="product-card-body">
+                              <span className="product-card-category" style={{ color: '#1B4268' }}>{prod.category}</span>
+                              <h4 className="product-card-title" onClick={() => navigateTo('details', prod)} style={{ cursor: 'pointer' }}>{prod.name}</h4>
+                              <div className="product-card-footer">
+                                <div>
+                                  <span className="product-price-label">Price / Estimate</span>
+                                  <div className="product-price">{prod.price > 0 ? formatTZS(prod.price) : 'Quote on Spec'}</div>
+                                </div>
+                                <button onClick={() => addToCart(prod, 1)} className="btn btn-primary btn-sm" style={{ backgroundColor: '#1B4268' }} title="Add to Cart">
+                                  <i data-lucide="plus" style={{ width: 16, height: 16 }}></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', backgroundColor: '#F8FAFC', border: '2px dashed #CBD5E1' }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#EFF6FF', color: '#1B4268', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+                          <i data-lucide="flask-conical" style={{ width: 28, height: 28 }}></i>
+                        </div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#163A59', marginBottom: '0.4rem' }}>
+                          Custom Laboratory Equipment & Inquiries
+                        </h3>
+                        <p style={{ color: '#64748B', maxWidth: '520px', margin: '0 auto 1.5rem auto', lineHeight: 1.6, fontSize: '0.95rem' }}>
+                          All laboratory instruments, analytical balances, glassware, and safety gear are supplied on demand across Tanzania. Submit your request for an official Proforma Invoice.
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                          <button onClick={() => navigateTo('order-request')} className="btn btn-primary" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
+                            Submit Order / Proforma Request
+                          </button>
+                          <button onClick={() => navigateTo('contact')} className="btn btn-secondary">
+                            Contact Technical Team
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* 4. PRODUCTS CATALOGUE */}
+            {currentRoute === 'products' && (
+              <div className="section-sm science-grid-bg">
+                <div className="container">
+                  <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                    <span className="section-tag" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>Direct Supply Catalogue</span>
+                    <h1 className="section-title">Laboratory Equipment & Scientific Supplies</h1>
+                  </div>
+
+                  <div className="card" style={{ padding: '1rem 1.25rem', marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ flex: 1, minWidth: '220px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Search equipment or SKU..." 
+                        value={searchFilter} 
+                        onChange={(e) => setSearchFilter(e.target.value)} 
+                        className="form-input" 
+                        style={{ height: '40px' }} 
+                      />
+                    </div>
+                    <select value={sortFilter} onChange={(e) => setSortFilter(e.target.value)} className="form-select" style={{ width: 'auto', height: '40px' }}>
+                      <option value="featured">Featured</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="name">Name A-Z</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2rem' }} className="catalog-layout-grid">
+                    <aside className="card" style={{ padding: '1.5rem', height: 'fit-content' }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem', color: '#163A59' }}>Categories</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <button onClick={() => setCategoryFilter('all')} style={{ textAlign: 'left', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', background: categoryFilter === 'all' ? '#EFF6FF' : 'transparent', color: categoryFilter === 'all' ? '#1B4268' : 'inherit', fontWeight: categoryFilter === 'all' ? 700 : 500 }}>
+                          All Categories ({products.length})
+                        </button>
+                        {CATEGORIES.map(cat => (
+                          <button key={cat.id} onClick={() => setCategoryFilter(cat.id)} style={{ textAlign: 'left', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', background: categoryFilter === cat.id ? '#EFF6FF' : 'transparent', color: categoryFilter === cat.id ? '#1B4268' : 'inherit', fontWeight: categoryFilter === cat.id ? 700 : 500 }}>
+                            {cat.name}
+                          </button>
+                        ))}
+                      </div>
+                    </aside>
+
+                    <div>
+                      <div className="grid-3">
+                        {filteredProducts.map(prod => (
+                          <div key={prod.id} className="product-card">
+                            <div className="product-image-wrap" onClick={() => navigateTo('details', prod)} style={{ cursor: 'pointer' }}>
+                              <img src={prod.image} alt={prod.name} className="product-image" />
+                            </div>
+                            <div className="product-card-body">
+                              <span className="product-card-category" style={{ color: '#1B4268' }}>{prod.category}</span>
+                              <h4 className="product-card-title" onClick={() => navigateTo('details', prod)} style={{ cursor: 'pointer' }}>{prod.name}</h4>
+                              <p className="product-card-desc">{prod.description}</p>
+                              <div className="product-card-footer">
+                                <div>
+                                  <span className="product-price-label">Price</span>
+                                  <div className="product-price">{formatTZS(prod.price)}</div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                  <button onClick={() => addToCart(prod, 1)} className="btn btn-primary btn-sm" style={{ backgroundColor: '#1B4268' }} title="Add to Cart">
+                                    <i data-lucide="plus" style={{ width: 14, height: 14 }}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. PRODUCT DETAILS */}
+            {currentRoute === 'details' && selectedProduct && (
+              <div className="section-sm science-grid-bg">
+                <div className="container">
+                  <button onClick={() => navigateTo('products')} className="btn btn-secondary btn-sm" style={{ marginBottom: '1.5rem', gap: '0.4rem' }}>
+                    <i data-lucide="arrow-left" style={{ width: 15, height: 15 }}></i>
+                    <span>Back to Catalogue</span>
+                  </button>
+
+                  <div className="card" style={{ padding: '2.5rem', backgroundColor: '#FFFFFF', marginBottom: '2.5rem' }}>
+                    <div className="grid-2" style={{ gap: '3rem' }}>
+                      <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                        <img src={selectedProduct.image} alt={selectedProduct.name} style={{ width: '100%', height: '380px', objectFit: 'cover' }} />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1B4268', textTransform: 'uppercase' }}>{selectedProduct.category}</span>
+                        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0.4rem 0 1rem 0', color: '#163A59' }}>{selectedProduct.name}</h1>
+                        <div style={{ padding: '1rem', background: '#EFF6FF', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', border: '1px solid #DBEAFE' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#1B4268', fontWeight: 700 }}>PRICE / ESTIMATE</span>
+                          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#163A59' }}>{formatTZS(selectedProduct.price)}</div>
+                        </div>
+                        <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>{selectedProduct.description}</p>
+                        
+                        <div style={{ marginTop: 'auto', display: 'flex', gap: '1rem' }}>
+                          <button onClick={() => addToCart(selectedProduct, 1)} className="btn btn-primary btn-lg" style={{ flex: 1, backgroundColor: '#1B4268' }}>
+                            <i data-lucide="shopping-cart" style={{ width: 18, height: 18 }}></i>
+                            <span>Add to Cart</span>
+                          </button>
+                          <button onClick={() => navigateTo('order-request')} className="btn btn-secondary btn-lg">
+                            <i data-lucide="clipboard-list" style={{ width: 18, height: 18 }}></i>
+                            <span>Request Order</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 6. CART */}
+            {currentRoute === 'cart' && (
+              <div className="section-sm science-grid-bg">
+                <div className="container">
+                  <h1 className="section-title" style={{ marginBottom: '1.5rem' }}>Shopping Cart</h1>
+                  {cart.length > 0 ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '2rem' }} className="cart-layout-grid">
+                      <div className="card" style={{ padding: '1.5rem' }}>
+                        {cart.map(item => (
+                          <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--color-border)' }}>
+                            <div>
+                              <h4 style={{ fontWeight: 700, color: '#163A59' }}>{item.name}</h4>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{formatTZS(item.price)} each</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)' }}>
+                                <button onClick={() => updateCartQty(item.id, item.quantity - 1)} style={{ padding: '0.3rem 0.6rem', background: '#F8FAFC' }}>-</button>
+                                <span style={{ padding: '0.3rem 0.75rem', fontWeight: 700 }}>{item.quantity}</span>
+                                <button onClick={() => updateCartQty(item.id, item.quantity + 1)} style={{ padding: '0.3rem 0.6rem', background: '#F8FAFC' }}>+</button>
+                              </div>
+                              <span style={{ fontWeight: 800, minWidth: '110px', textAlign: 'right' }}>{formatTZS(item.price * item.quantity)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="card" style={{ padding: '1.5rem', height: 'fit-content' }}>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '1rem' }}>Summary</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 800 }}>
+                          <span>Total</span>
+                          <span style={{ color: '#1B4268' }}>{formatTZS(subtotal)}</span>
+                        </div>
+                        <button onClick={() => navigateTo('order-request')} className="btn btn-primary btn-block btn-lg" style={{ backgroundColor: '#1B4268' }}>
+                          Proceed to Order Request
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="card" style={{ padding: '3.5rem', textAlign: 'center' }}>
+                      <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>Your shopping cart is empty.</p>
+                      <button onClick={() => navigateTo('products')} className="btn btn-primary" style={{ backgroundColor: '#1B4268' }}>Browse Products</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 7. ABOUT US */}
+            {currentRoute === 'about' && (
+              <div>
+                <section className="section section-dark science-grid-dark" style={{ textAlign: 'center', backgroundColor: '#1B4268', padding: '4rem 0' }}>
+                  <div className="container">
+                    <span className="section-tag dark-tag">Corporate Profile</span>
+                    <h1 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#FFFFFF' }}>About Seagull General Supply Limited</h1>
+                    <p style={{ color: '#E0F2FE', fontSize: '1.2rem', marginTop: '0.75rem', fontStyle: 'italic' }}>"Services Beyond Measure!"</p>
+                  </div>
+                </section>
+                <section className="section science-grid-bg">
+                  <div className="container">
+                    <div className="grid-2" style={{ gap: '3rem', alignItems: 'center' }}>
+                      <div>
+                        <h2 className="section-title">Reliable Scientific Partner in Tanzania</h2>
+                        <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: '1rem' }}>
+                          Seagull General Supply Limited specializes in supplying chemistry and laboratory instruments, glassware, measuring equipment, and consumables throughout Tanzania.
+                        </p>
+                        <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.7 }}>
+                          We equip universities, hospitals, research centers, mining quality control labs, and schools across all 31 regions of Tanzania with ISO-certified scientific apparatus.
+                        </p>
+                      </div>
+                      <div className="card" style={{ padding: '2rem', borderLeft: '4px solid #1B4268' }}>
+                        <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.75rem', color: '#163A59' }}>Our Mission</h3>
+                        <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6 }}>To provide certified laboratory equipment and technical advisory that empowers scientific research, diagnosis, and quality control.</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* 8. CONTACT */}
+            {currentRoute === 'contact' && (
+              <div className="section-sm science-grid-bg">
+                <div className="container">
+                  <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                    <span className="section-tag" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>Direct Inquiry</span>
+                    <h1 className="section-title">Contact Seagull General Supply Limited</h1>
+                  </div>
+
+                  <div className="grid-2" style={{ gap: '3rem' }}>
+                    <div>
+                      <div className="contact-info-card" style={{ marginBottom: '1rem' }}>
+                        <div className="contact-icon-pill"><i data-lucide="phone" style={{ width: 22, height: 22 }}></i></div>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1B4268' }}>PHONE / WHATSAPP</span>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{COMPANY_INFO.phone}</div>
+                        </div>
+                      </div>
+
+                      <div className="contact-info-card" style={{ marginBottom: '1rem' }}>
+                        <div className="contact-icon-pill"><i data-lucide="mail" style={{ width: 22, height: 22 }}></i></div>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1B4268' }}>EMAIL</span>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{COMPANY_INFO.email}</div>
+                        </div>
+                      </div>
+
+                      <div className="contact-info-card" style={{ marginBottom: '1rem' }}>
+                        <div className="contact-icon-pill"><i data-lucide="globe" style={{ width: 22, height: 22 }}></i></div>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1B4268' }}>WEBSITE</span>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{COMPANY_INFO.website}</div>
+                        </div>
+                      </div>
+
+                      <div className="contact-info-card">
+                        <div className="contact-icon-pill" style={{ background: '#FFF1F2', color: '#E1306C' }}><i data-lucide="instagram" style={{ width: 22, height: 22 }}></i></div>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#E1306C' }}>INSTAGRAM</span>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>@{COMPANY_INFO.instagram}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card" style={{ padding: '2rem' }}>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', color: '#163A59' }}>Send Message</h3>
+                      <form onSubmit={(e) => { e.preventDefault(); showToast('Message sent to Seagull team!'); e.target.reset(); }}>
+                        <div className="form-group">
+                          <label className="form-label">Full Name</label>
+                          <input type="text" required className="form-input" placeholder="e.g. Dr. Frank Masanja" />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Email Address</label>
+                          <input type="email" required className="form-input" placeholder="e.g. f.masanja@lab.co.tz" />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Message</label>
+                          <textarea required rows="3" className="form-textarea" placeholder="Inquiry details..."></textarea>
+                        </div>
+                        <button type="submit" className="btn btn-primary btn-block" style={{ backgroundColor: '#1B4268' }}>Send Message</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 9. ADMIN LOGIN */}
+            {currentRoute === 'admin-login' && (
+              <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#163A59', padding: '2rem' }}>
+                <div className="card" style={{ maxWidth: '440px', width: '100%', padding: '2.5rem', backgroundColor: '#FFFFFF' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    <img src="client/public/seagull-logo.svg" alt="Seagull Logo" style={{ width: '64px', height: '64px', margin: '0 auto 0.75rem auto' }} />
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#163A59' }}>Admin Portal</h2>
+                  </div>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    setIsAdminLoggedIn(true);
+                    showToast('Logged in as Administrator');
+                    navigateTo('admin-dashboard');
+                  }}>
+                    <div className="form-group">
+                      <label className="form-label">Email</label>
+                      <input type="email" defaultValue="admin@seagull.co.tz" className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Password</label>
+                      <input type="password" defaultValue="admin123" className="form-input" />
+                    </div>
+                    <button type="submit" className="btn btn-primary btn-block btn-lg" style={{ marginTop: '1rem', backgroundColor: '#1B4268' }}>Sign In</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* 10. ADMIN DASHBOARD */}
+            {currentRoute === 'admin-dashboard' && (
+              <div className="section-sm science-grid-bg">
+                <div className="container">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h1 className="section-title" style={{ margin: 0 }}>Operations Dashboard</h1>
+                    <button onClick={() => { setIsAdminLoggedIn(false); navigateTo('home'); }} className="btn btn-secondary btn-sm">Logout</button>
+                  </div>
+
+                  <div className="grid-4" style={{ marginBottom: '2.5rem' }}>
+                    <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #1B4268' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>TOTAL PRODUCTS</div>
+                      <div style={{ fontSize: '2rem', fontWeight: 800 }}>{products.length}</div>
+                    </div>
+                    <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #2E8BC9' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>TOTAL ORDERS</div>
+                      <div style={{ fontSize: '2rem', fontWeight: 800 }}>{orders.length}</div>
+                    </div>
+                    <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #F59E0B' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>PENDING ORDERS</div>
+                      <div style={{ fontSize: '2rem', fontWeight: 800 }}>{orders.filter(o => o.status === 'Pending').length}</div>
+                    </div>
+                    <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid #10B981' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>PIPELINE VALUE</div>
+                      <div style={{ fontSize: '1.3rem', fontWeight: 800 }}>{formatTZS(orders.reduce((a, o) => a + o.totalAmount, 0))}</div>
+                    </div>
+                  </div>
+
+                  {/* Inventory Management Section */}
+                  <div className="card" style={{ padding: '1.5rem', backgroundColor: '#FFFFFF', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#163A59' }}>Laboratory Inventory Management ({products.length})</h3>
+                        <span style={{ fontSize: '0.8rem', color: '#64748B' }}>Add, edit, or delete items. Products marked as featured will appear on the Home page.</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          onClick={() => {
+                            setEditingProd(null);
+                            setAdminForm({
+                              name: '',
+                              category: 'Laboratory Instruments',
+                              categoryId: 'instruments',
+                              sku: 'SGL-INV-' + Math.floor(100 + Math.random() * 900),
+                              price: '',
+                              stock: 10,
+                              image: '',
+                              description: '',
+                              featured: true
+                            });
+                            setAdminModalOpen(true);
+                          }} 
+                          className="btn btn-primary btn-sm"
+                          style={{ backgroundColor: '#1B4268', gap: '0.4rem' }}
+                        >
+                          <i data-lucide="plus" style={{ width: 14, height: 14 }}></i>
+                          <span>+ Add New Product</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="table-responsive">
+                      <table className="custom-table">
+                        <thead>
+                          <tr>
+                            <th>Product Details</th>
+                            <th>Category</th>
+                            <th>Price (TZS)</th>
+                            <th>Stock</th>
+                            <th>Featured on Home</th>
+                            <th style={{ textAlign: 'right' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {products.map(p => (
+                            <tr key={p.id}>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                  {p.image ? (
+                                    <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                  ) : (
+                                    <div style={{ width: '40px', height: '40px', backgroundColor: '#EFF6FF', color: '#1B4268', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                      <i data-lucide="package" style={{ width: 20, height: 20 }}></i>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <strong style={{ color: '#163A59', fontSize: '0.9rem' }}>{p.name}</strong>
+                                    <div style={{ fontSize: '0.75rem', color: '#64748B' }}>SKU: {p.sku || 'N/A'}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td><span className="badge" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>{p.category}</span></td>
+                              <td style={{ fontWeight: 700 }}>{p.price > 0 ? formatTZS(p.price) : 'Quote on Spec'}</td>
+                              <td><span className={`badge ${p.stock > 0 ? 'badge-in-stock' : 'badge-out-of-stock'}`}>{p.stock || 0} units</span></td>
+                              <td>
+                                {p.featured ? (
+                                  <span className="badge badge-featured">★ Featured on Home</span>
+                                ) : (
+                                  <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>No</span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <button 
+                                  onClick={() => {
+                                    if (confirm(`Remove "${p.name}" from inventory?`)) {
+                                      saveProducts(products.filter(item => item.id !== p.id));
+                                      showToast(`Removed "${p.name}"`);
+                                    }
+                                  }}
+                                  className="btn btn-danger btn-sm"
+                                  title="Delete"
+                                >
+                                  <i data-lucide="trash-2" style={{ width: 14, height: 14 }}></i>
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+
+                          {products.length === 0 && (
+                            <tr>
+                              <td colSpan="6" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                                <div style={{ width: '48px', height: '48px', backgroundColor: '#EFF6FF', color: '#1B4268', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem auto' }}>
+                                  <i data-lucide="package" style={{ width: 24, height: 24 }}></i>
+                                </div>
+                                <strong style={{ color: '#163A59', fontSize: '1rem', display: 'block', marginBottom: '0.25rem' }}>No Inventory Added Yet</strong>
+                                <p style={{ fontSize: '0.85rem', color: '#64748B', maxWidth: '420px', margin: '0 auto 1.25rem auto' }}>Click the "+ Add New Product" button above to add laboratory equipment that will appear in your public catalogue and Featured section.</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Recent Orders Section */}
+                  <div className="card" style={{ padding: '1.5rem', backgroundColor: '#FFFFFF' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1rem', color: '#163A59' }}>Recent Orders</h3>
+                    <div className="table-responsive">
+                      <table className="custom-table">
+                        <thead>
+                          <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orders.map(o => (
+                            <tr key={o.id}>
+                              <td style={{ fontWeight: 700, color: '#1B4268' }}>{o.id}</td>
+                              <td><strong>{o.customer?.name}</strong> ({o.customer?.company || 'Tanzania Client'})</td>
+                              <td style={{ fontWeight: 700 }}>{formatTZS(o.totalAmount)}</td>
+                              <td><span className="badge badge-in-stock">{o.status}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Product Modal for Admin */}
+                {adminModalOpen && (
+                  <div className="modal-overlay" onClick={() => setAdminModalOpen(false)}>
+                    <div className="modal-content" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
+                      <div className="modal-header">
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#163A59' }}>Add Laboratory Product to Inventory</h3>
+                        <button className="modal-close-btn" onClick={() => setAdminModalOpen(false)}>✕</button>
+                      </div>
+
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const newProd = {
+                          id: 'prod-' + Date.now(),
+                          name: adminForm.name,
+                          category: adminForm.category,
+                          categoryId: adminForm.categoryId,
+                          sku: adminForm.sku || 'SGL-INV-' + Math.floor(100 + Math.random() * 900),
+                          price: Number(adminForm.price) || 0,
+                          stock: Number(adminForm.stock) || 1,
+                          image: adminForm.image || '',
+                          description: adminForm.description || '',
+                          featured: adminForm.featured
+                        };
+                        saveProducts([newProd, ...products]);
+                        setAdminModalOpen(false);
+                        showToast(`"${newProd.name}" added to inventory!`);
+                      }}>
+                        <div className="form-group">
+                          <label className="form-label">Equipment Name *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={adminForm.name} 
+                            onChange={(e) => setAdminForm({...adminForm, name: e.target.value})} 
+                            className="form-input" 
+                            placeholder="e.g. Digital Analytical Balance (0.0001g)" 
+                          />
+                        </div>
+
+                        <div className="grid-2" style={{ gap: '1rem' }}>
+                          <div className="form-group">
+                            <label className="form-label">Category *</label>
+                            <select 
+                              value={adminForm.categoryId} 
+                              onChange={(e) => {
+                                const found = CATEGORIES.find(c => c.id === e.target.value);
+                                setAdminForm({
+                                  ...adminForm,
+                                  categoryId: e.target.value,
+                                  category: found ? found.name : 'Laboratory Instruments'
+                                });
+                              }}
+                              className="form-select"
+                            >
+                              {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="form-label">SKU Reference Code</label>
+                            <input 
+                              type="text" 
+                              value={adminForm.sku} 
+                              onChange={(e) => setAdminForm({...adminForm, sku: e.target.value})} 
+                              className="form-input" 
+                              placeholder="e.g. SGL-BAL-220A" 
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid-2" style={{ gap: '1rem' }}>
+                          <div className="form-group">
+                            <label className="form-label">Price in TZS (0 = Quote on Request)</label>
+                            <input 
+                              type="number" 
+                              value={adminForm.price} 
+                              onChange={(e) => setAdminForm({...adminForm, price: e.target.value})} 
+                              className="form-input" 
+                              placeholder="e.g. 1850000" 
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="form-label">Stock Quantity (Units)</label>
+                            <input 
+                              type="number" 
+                              value={adminForm.stock} 
+                              onChange={(e) => setAdminForm({...adminForm, stock: e.target.value})} 
+                              className="form-input" 
+                            />
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Product Image URL (Optional)</label>
+                          <input 
+                            type="url" 
+                            value={adminForm.image} 
+                            onChange={(e) => setAdminForm({...adminForm, image: e.target.value})} 
+                            className="form-input" 
+                            placeholder="https://images.unsplash.com/..." 
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Description / Specifications</label>
+                          <textarea 
+                            rows="2" 
+                            value={adminForm.description} 
+                            onChange={(e) => setAdminForm({...adminForm, description: e.target.value})} 
+                            className="form-textarea" 
+                            placeholder="Add analytical precision, voltage, materials..." 
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input 
+                              type="checkbox" 
+                              checked={adminForm.featured} 
+                              onChange={(e) => setAdminForm({...adminForm, featured: e.target.checked})} 
+                              style={{ width: 16, height: 16, accentColor: '#1B4268' }} 
+                            />
+                            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#163A59' }}>
+                              🌟 Feature this product on Home Page (Featured Inventory)
+                            </span>
+                          </label>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                          <button type="button" onClick={() => setAdminModalOpen(false)} className="btn btn-secondary">Cancel</button>
+                          <button type="submit" className="btn btn-primary" style={{ backgroundColor: '#1B4268' }}>Add to Inventory</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+
+          {/* Footer in Blue and White with exact brand info */}
+          {currentRoute !== 'intro' && (
+            <footer className="footer-main" style={{ backgroundColor: '#163A59', borderTop: '4px solid #2E8BC9' }}>
+              <div className="container">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <img src="client/public/seagull-logo.svg" alt="Seagull Logo" style={{ width: '44px', height: '44px' }} />
+                      <div>
+                        <h4 style={{ color: '#FFF', margin: 0, fontSize: '1.05rem' }}>SEAGULL GENERAL SUPPLY</h4>
+                        <span style={{ color: '#93C5FD', fontStyle: 'italic', fontSize: '0.78rem' }}>"Services Beyond Measure!"</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: '#CBD5E1', lineHeight: 1.6 }}>Supplying chemistry laboratory equipment, scientific apparatus, glassware, and consumables across Tanzania.</p>
+                  </div>
+                  <div>
+                    <h4 style={{ color: '#FFF' }}>Direct Contact</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#E2E8F0', marginBottom: '0.4rem' }}>Phone: {COMPANY_INFO.phone}</p>
+                    <p style={{ fontSize: '0.85rem', color: '#E2E8F0', marginBottom: '0.4rem' }}>Email: {COMPANY_INFO.email}</p>
+                    <p style={{ fontSize: '0.85rem', color: '#E2E8F0', marginBottom: '0.4rem' }}>Web: {COMPANY_INFO.website}</p>
+                    <p style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>Instagram: @{COMPANY_INFO.instagram}</p>
+                  </div>
+                  <div>
+                    <h4 style={{ color: '#FFF' }}>Quick Links</h4>
+                    <p><a href="#" onClick={(e) => { e.preventDefault(); navigateTo('order-request'); }} style={{ color: '#93C5FD', fontSize: '0.88rem' }}>→ Request Order / Proforma</a></p>
+                    <p><a href="#" onClick={(e) => { e.preventDefault(); navigateTo('products'); }} style={{ color: '#93C5FD', fontSize: '0.88rem' }}>→ Products Catalogue</a></p>
+                    <p><a href="#" onClick={(e) => { e.preventDefault(); navigateTo('about'); }} style={{ color: '#93C5FD', fontSize: '0.88rem' }}>→ About Company</a></p>
+                  </div>
+                </div>
+                <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  <p>© {new Date().getFullYear()} Seagull General Supply Limited. All rights reserved.</p>
+                  <p style={{ color: '#93C5FD' }}>Services Beyond Measure!</p>
+                </div>
+              </div>
+            </footer>
+          )}
+
+          {/* Toast Notification */}
+          {toast && (
+            <div className="toast-fixed-wrap">
+              <div className="toast-item" style={{ backgroundColor: '#163A59', borderLeftColor: '#2E8BC9' }}>
+                <span>{toast.msg}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Introduction Component (First Page of Website as Requested)
+    function IntroSection({ onOrderRequest, onExplore }) {
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.7,
+            vy: (Math.random() - 0.5) * 0.7,
+            radius: Math.random() * 2.2 + 1
+          });
+        }
+
+        let id;
+        const render = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#2E8BC9';
+            ctx.fill();
+          });
+          id = requestAnimationFrame(render);
+        };
+        render();
+        return () => cancelAnimationFrame(id);
+      }, []);
+
+      return (
+        <div style={{ minHeight: '100vh', backgroundColor: '#163A59', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem', position: 'relative', color: '#FFF' }}>
+          <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
+          
+          <div style={{ position: 'relative', zIndex: 5, maxWidth: '780px' }}>
+            {/* Exact Seagull Logo Emblem */}
+            <div style={{ width: '110px', height: '110px', margin: '0 auto 1.5rem auto', filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.3))' }}>
+              <img src="client/public/seagull-logo.svg" alt="Seagull Logo" style={{ width: '100%', height: '100%' }} />
+            </div>
+
+            <span className="section-tag dark-tag" style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
+              Tanzania Nationwide Laboratory & Scientific Supply
+            </span>
+
+            <h1 style={{ fontSize: 'clamp(2.2rem, 5.5vw, 3.4rem)', fontWeight: 800, marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
+              SEAGULL GENERAL SUPPLY LIMITED
+            </h1>
+
+            <div style={{ fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', color: '#93C5FD', fontWeight: 700, fontStyle: 'italic', marginBottom: '1.5rem' }}>
+              "Services Beyond Measure!"
+            </div>
+
+            <p style={{ color: '#E2E8F0', fontSize: '1.15rem', maxWidth: '640px', margin: '0 auto 2.5rem auto', lineHeight: 1.6 }}>
+              Reliable laboratory, chemistry, scientific instruments, glassware, measuring apparatus, and consumables for institutions and industries across Tanzania.
+            </p>
+
+            {/* Direct Entry Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <button onClick={onOrderRequest} className="btn btn-cyan btn-lg" style={{ backgroundColor: '#2E8BC9', color: '#FFFFFF', padding: '1rem 2.25rem', fontSize: '1.05rem' }}>
+                <span>Request Laboratory Order</span>
+                <i data-lucide="arrow-right" style={{ width: 18, height: 18 }}></i>
+              </button>
+              <button onClick={onExplore} className="btn btn-outline-white btn-lg" style={{ padding: '1rem 2rem', fontSize: '1.05rem' }}>
+                <span>Explore Products Catalogue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Order Request Section with all customer & equipment details
+    function OrderRequestSection({ cart, formatTZS, products, onOrderSubmitted, onExplore }) {
+      const [formData, setFormData] = useState({
+        name: '',
+        organization: '',
+        email: '',
+        phone: '',
+        region: 'Dar es Salaam',
+        address: '',
+        orderType: 'Official Proforma Invoice',
+        notes: '',
+        calibrationRequired: true
+      });
+
+      const [items, setItems] = useState(() => {
+        if (cart && cart.length > 0) {
+          return cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }));
+        }
+        return [
+          { name: 'Precision Digital Analytical Balance (0.0001g / 220g)', price: 1850000, quantity: 1 }
+        ];
+      });
+
+      const [customInput, setCustomInput] = useState('');
+      const [submitted, setSubmitted] = useState(false);
+      const [orderRef, setOrderRef] = useState('');
+
+      const handleAddItem = (e) => {
+        const prodId = e.target.value;
+        if (!prodId) return;
+        const found = products.find(p => p.id === prodId);
+        if (found) {
+          setItems(prev => [...prev, { name: found.name, price: found.price, quantity: 1 }]);
+        }
+        e.target.value = '';
+      };
+
+      const handleAddCustom = (e) => {
+        e.preventDefault();
+        if (customInput.trim()) {
+          setItems(prev => [...prev, { name: customInput.trim(), price: 0, quantity: 1 }]);
+          setCustomInput('');
+        }
+      };
+
+      const handleQty = (idx, delta) => {
+        setItems(prev => {
+          const next = [...prev];
+          next[idx].quantity = Math.max(1, next[idx].quantity + delta);
+          return next;
+        });
+      };
+
+      const handleRemove = (idx) => {
+        setItems(prev => prev.filter((_, i) => i !== idx));
+      };
+
+      const total = items.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (items.length === 0) {
+          alert('Please add at least one laboratory equipment item.');
+          return;
+        }
+        const ref = 'SGL-ORD-' + Math.floor(100000 + Math.random() * 900000);
+        setOrderRef(ref);
+        setSubmitted(true);
+        onOrderSubmitted({
+          id: ref,
+          customer: { name: formData.name, company: formData.organization, phone: formData.phone, email: formData.email, deliveryAddress: `${formData.address}, ${formData.region}` },
+          products: items,
+          totalAmount: total,
+          status: 'Pending',
+          createdAt: new Date().toISOString()
+        });
+      };
+
+      if (submitted) {
+        return (
+          <div className="section-sm science-grid-bg">
+            <div className="container" style={{ maxWidth: '720px' }}>
+              <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', backgroundColor: '#FFFFFF', borderTop: '6px solid #1B4268' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                  <i data-lucide="check-circle-2" style={{ width: 36, height: 36 }}></i>
+                </div>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#163A59', marginBottom: '0.75rem' }}>Order Request Submitted Successfully!</h2>
+                <div style={{ padding: '1rem', backgroundColor: '#EFF6FF', borderRadius: 'var(--radius-md)', display: 'inline-block', marginBottom: '1.5rem', border: '1px solid #BFDBFE' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#1B4268', display: 'block', fontWeight: 700 }}>ORDER REFERENCE NUMBER</span>
+                  <strong style={{ fontSize: '1.3rem', color: '#163A59', fontFamily: 'var(--font-mono)' }}>{orderRef}</strong>
+                </div>
+                <p style={{ color: '#64748B', maxWidth: '520px', margin: '0 auto 2rem auto', lineHeight: 1.6 }}>
+                  Thank you, <strong>{formData.name}</strong>. Seagull General Supply Limited has logged your order request. A formal Proforma Invoice will be emailed to <strong>{formData.email}</strong>.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => window.print()} className="btn btn-secondary">
+                    <i data-lucide="printer" style={{ width: 16, height: 16 }}></i>
+                    <span>Print Confirmation</span>
+                  </button>
+                  <a href={`https://wa.me/255743611101?text=Hello%20Seagull%20General%20Supply,%20I%20have%20submitted%20order%20request%20${orderRef}%20for%20${encodeURIComponent(formData.name)}`} target="_blank" className="btn btn-primary" style={{ backgroundColor: '#25D366', borderColor: '#25D366' }}>
+                    <i data-lucide="message-square" style={{ width: 16, height: 16 }}></i>
+                    <span>Confirm via WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="section-sm science-grid-bg">
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+              <span className="section-tag" style={{ backgroundColor: '#EFF6FF', color: '#1B4268' }}>Official Procurement Portal</span>
+              <h1 className="section-title">Request Laboratory Equipment & Submit Order</h1>
+              <p className="section-subtitle" style={{ maxWidth: '640px', margin: '0 auto' }}>
+                Fill out the required customer details below to place an order or receive an official Proforma Invoice.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2.5rem', alignItems: 'start' }} className="order-form-layout-grid">
+                {/* Left: Customer Info */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div className="card" style={{ padding: '2rem', backgroundColor: '#FFFFFF' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#163A59', marginBottom: '1.25rem', borderBottom: '2px solid #F1F5F9', paddingBottom: '0.75rem' }}>
+                      1. Customer & Institution Details
+                    </h3>
+
+                    <div className="grid-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Full Name *</label>
+                        <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="form-input" placeholder="e.g. Dr. John Mwinyi" />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Institution / Organization *</label>
+                        <input type="text" required value={formData.organization} onChange={(e) => setFormData({...formData, organization: e.target.value})} className="form-input" placeholder="e.g. University / Hospital / Lab" />
+                      </div>
+                    </div>
+
+                    <div className="grid-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Official Email *</label>
+                        <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="form-input" placeholder="e.g. j.mwinyi@lab.co.tz" />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Phone / WhatsApp (+255) *</label>
+                        <input type="tel" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="form-input" placeholder="+255 743 611 101" />
+                      </div>
+                    </div>
+
+                    <div className="grid-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Region in Tanzania *</label>
+                        <select value={formData.region} onChange={(e) => setFormData({...formData, region: e.target.value})} className="form-select">
+                          {TANZANIA_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Order / Quotation Type</label>
+                        <select value={formData.orderType} onChange={(e) => setFormData({...formData, orderType: e.target.value})} className="form-select">
+                          <option value="Official Proforma Invoice">Official Proforma Invoice</option>
+                          <option value="Direct Purchase Order">Direct Purchase Order</option>
+                          <option value="Tender / Government Procurement">Tender / Government Procurement</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Delivery Address / Department *</label>
+                      <input type="text" required value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="form-input" placeholder="e.g. Science Block Floor 2, University Campus" />
+                    </div>
+                  </div>
+
+                  <div className="card" style={{ padding: '2rem', backgroundColor: '#FFFFFF' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#163A59', marginBottom: '1rem' }}>
+                      2. Additional Specifications & Notes
+                    </h3>
+                    <div className="form-group">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+                        <input type="checkbox" checked={formData.calibrationRequired} onChange={(e) => setFormData({...formData, calibrationRequired: e.target.checked})} style={{ width: 16, height: 16, accentColor: '#1B4268' }} />
+                        <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>Include Calibration Certificates</span>
+                      </label>
+                      <textarea rows="2" value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} className="form-textarea" placeholder="Add specific voltage (220V/50Hz), brand requirements, or delivery deadlines..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Items Selection */}
+                <div className="card" style={{ padding: '2rem', backgroundColor: '#FFFFFF', borderTop: '4px solid #1B4268', position: 'sticky', top: '100px' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#163A59', marginBottom: '1rem', borderBottom: '2px solid #F1F5F9', paddingBottom: '0.75rem' }}>
+                    3. Selected Laboratory Equipment ({items.length})
+                  </h3>
+
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Add from Catalog:</label>
+                    <select onChange={handleAddItem} className="form-select" style={{ fontSize: '0.85rem' }}>
+                      <option value="">-- Choose Equipment --</option>
+                      {products.map(p => <option key={p.id} value={p.id}>{p.name} ({formatTZS(p.price)})</option>)}
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                    <input type="text" placeholder="Or custom item name..." value={customInput} onChange={(e) => setCustomInput(e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }} />
+                    <button type="button" onClick={handleAddCustom} className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }}>+ Custom</button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '280px', overflowY: 'auto', marginBottom: '1.5rem' }}>
+                    {items.map((it, idx) => (
+                      <div key={idx} style={{ padding: '0.65rem', backgroundColor: '#F8FAFC', borderRadius: 'var(--radius-md)', border: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ flex: 1, paddingRight: '0.5rem' }}>
+                          <strong style={{ fontSize: '0.85rem', color: '#163A59' }}>{it.name}</strong>
+                          <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{it.price > 0 ? formatTZS(it.price) : 'Quote on Spec'}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', border: '1px solid #CBD5E1', borderRadius: '4px', background: '#FFF' }}>
+                            <button type="button" onClick={() => handleQty(idx, -1)} style={{ padding: '0.1rem 0.4rem', background: 'none' }}>-</button>
+                            <span style={{ padding: '0.1rem 0.4rem', fontWeight: 700, fontSize: '0.85rem' }}>{it.quantity}</span>
+                            <button type="button" onClick={() => handleQty(idx, 1)} style={{ padding: '0.1rem 0.4rem', background: 'none' }}>+</button>
+                          </div>
+                          <button type="button" onClick={() => handleRemove(idx)} style={{ color: '#EF4444', background: 'none' }}>✕</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ borderTop: '2px dashed #CBD5E1', paddingTop: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 800, color: '#163A59' }}>Estimated Total:</span>
+                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1B4268' }}>{formatTZS(total)}</span>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary btn-block btn-lg" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
+                    Submit Order & Proforma Request
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
