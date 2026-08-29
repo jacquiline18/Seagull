@@ -70,17 +70,14 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(` SEAGULL GENERAL SUPPLY LIMITED - BACKEND SERVER`);
-  console.log(` "Services Beyond Measure!"`);
-  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(` Running on port: http://localhost:${PORT}`);
-  console.log(` API Endpoint: http://localhost:${PORT}/api/health`);
-  console.log(`====================================================`);
-});
+// Export app for Netlify
+module.exports = app;
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.error(`Unhandled Rejection Error: ${err.message}`);
-});
+// Only start a server when running locally
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`SEAGULL GENERAL SUPPLY LIMITED - BACKEND SERVER`);
+    console.log(`Running on port: http://localhost:${PORT}`);
+    console.log(`API: http://localhost:${PORT}/api/health`);
+  });
+}
