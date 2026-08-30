@@ -49,8 +49,9 @@ app.get('/products', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'preview.html'));
 });
 
-// API Health Check
-app.get('/api/health', (req, res) => {
+// Helper to mount API routes on any prefix
+const apiRouter = express.Router();
+apiRouter.get('/health', (req, res) => {
   res.json({
     status: 'online',
     service: 'Seagull General Supply Limited API',
@@ -58,12 +59,14 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/products', productRoutes);
+apiRouter.use('/orders', orderRoutes);
+apiRouter.use('/contact', contactRoutes);
 
-// Mount Routers
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/contact', contactRoutes);
+// Mount for standard local API and Netlify serverless functions
+app.use('/api', apiRouter);
+app.use('/.netlify/functions/api', apiRouter);
 
 // Error handling middleware
 app.use(errorHandler);
