@@ -335,7 +335,10 @@ export const OrderRequestPage = () => {
                 <span>Confirm on WhatsApp (+255 743 611 101)</span>
               </a>
               <Link to="/products" className="btn btn-outline" style={{ borderColor: '#1B4268', color: '#1B4268' }}>
-                Browse More Products
+                Return to Product Catalogue
+              </Link>
+              <Link to="/" className="btn btn-secondary">
+                Back to Home
               </Link>
             </div>
           </div>
