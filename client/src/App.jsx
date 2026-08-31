@@ -37,23 +37,25 @@ const AppLayout = () => {
       <ScrollToTop />
       {!isIntro && <Navbar />}
       
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/intro" element={<IntroPage />} />
-          <Route path="/order-request" element={<OrderRequestPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/:id" element={<ProductDetailsPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/products" element={<AdminProductsPage />} />
-          <Route path="/admin/orders" element={<AdminOrdersPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+      <main className="main-content" style={{ minHeight: '80vh' }}>
+        <div key={location.pathname} className="page-transition-wrapper">
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/intro" element={<IntroPage />} />
+            <Route path="/order-request" element={<OrderRequestPage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailsPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/products" element={<AdminProductsPage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
       </main>
 
       {!isIntro && <Footer />}

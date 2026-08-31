@@ -19,17 +19,26 @@ API.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-// LocalStorage helpers for mock fallback persistence
+// LocalStorage helpers for mock fallback persistence & sample initialization
 const getStoredProducts = () => {
   const local = localStorage.getItem('sgl_mock_products');
   if (local) {
     try {
-      return JSON.parse(local);
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     } catch {
-      return [];
+      // ignore
     }
   }
-  return [];
+  // Initialize with sample products if empty
+  try {
+    localStorage.setItem('sgl_mock_products', JSON.stringify(SAMPLE_PRODUCTS));
+  } catch {
+    // ignore
+  }
+  return SAMPLE_PRODUCTS;
 };
 
 const setStoredProducts = (products) => {
@@ -40,12 +49,15 @@ const getStoredOrders = () => {
   const local = localStorage.getItem('sgl_mock_orders');
   if (local) {
     try {
-      return JSON.parse(local);
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     } catch {
-      return [];
+      // ignore
     }
   }
-  return [
+  const defaultOrders = [
     {
       _id: 'ORD-2026-001',
       id: 'ORD-2026-001',
@@ -85,6 +97,12 @@ const getStoredOrders = () => {
       createdAt: '2026-08-27T14:15:00.000Z'
     }
   ];
+  try {
+    localStorage.setItem('sgl_mock_orders', JSON.stringify(defaultOrders));
+  } catch {
+    // ignore
+  }
+  return defaultOrders;
 };
 
 const setStoredOrders = (orders) => {
@@ -96,88 +114,112 @@ export const productService = {
   async getAllProducts(params = {}) {
     try {
       const response = await API.get('/products', { params });
-      return response.data;
+      if (response && response.data && Array.isArray(response.data.products) && response.data.products.length > 0) {
+        return response.data;
+      }
     } catch {
-      // Fallback to local storage / mock data
-      let products = getStoredProducts();
-      if (params.category && params.category !== 'all') {
-        products = products.filter(p => p.categoryId === params.category || p.category.toLowerCase().includes(params.category.toLowerCase()));
-      }
-      if (params.search) {
-        const q = params.search.toLowerCase();
-        products = products.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
-      }
-      if (params.featured) {
-        products = products.filter(p => p.featured);
-      }
-      return { success: true, count: products.length, products };
+      // Fallback
     }
+
+    // Fallback to local storage / sample catalog
+    let products = getStoredProducts();
+    if (params.category && params.category !== 'all') {
+      products = products.filter(p => p.categoryId === params.category || (p.category && p.category.toLowerCase().includes(params.category.toLowerCase())));
+    }
+    if (params.search) {
+      const q = params.search.toLowerCase();
+      products = products.filter(p => (p.name && p.name.toLowerCase().includes(q)) || (p.description && p.description.toLowerCase().includes(q)) || (p.sku && p.sku.toLowerCase().includes(q)));
+    }
+    if (params.featured) {
+      products = products.filter(p => p.featured);
+    }
+    return { success: true, count: products.length, products };
   },
 
   async getProductById(id) {
     try {
       const response = await API.get(`/products/${id}`);
-      return response.data;
+      if (response.data && response.data.product) {
+        return response.data;
+      }
     } catch {
-      const products = getStoredProducts();
-      const product = products.find(p => p._id === id || p.id === id);
-      if (product) return { success: true, product };
-      throw new Error('Product not found');
+      // Fallback
     }
+    const products = getStoredProducts();
+    const product = products.find(p => p._id === id || p.id === id || String(p._id) === String(id) || String(p.id) === String(id));
+    if (product) return { success: true, product };
+    throw new Error('Product not found');
   },
 
   async createProduct(productData) {
     try {
       const response = await API.post('/products', productData);
-      return response.data;
+      if (response.data && response.data.product) {
+        const products = getStoredProducts();
+        products.unshift(response.data.product);
+        setStoredProducts(products);
+        return response.data;
+      }
     } catch {
-      const products = getStoredProducts();
-      const newProduct = {
-        ...productData,
-        _id: 'prod-' + Date.now(),
-        id: 'prod-' + Date.now(),
-        priceFormatted: `TZS ${Number(productData.price).toLocaleString()}`,
-        priceUSD: Math.round(Number(productData.price) / 2560),
-        inStock: Number(productData.stock) > 0,
-        createdAt: new Date().toISOString()
-      };
-      products.unshift(newProduct);
-      setStoredProducts(products);
-      return { success: true, product: newProduct };
+      // Fallback
     }
+    const products = getStoredProducts();
+    const newProduct = {
+      ...productData,
+      _id: 'prod-' + Date.now(),
+      id: 'prod-' + Date.now(),
+      price: Number(productData.price) || 0,
+      priceFormatted: `TZS ${Number(productData.price || 0).toLocaleString()}`,
+      priceUSD: Math.round(Number(productData.price || 0) / 2560),
+      inStock: Number(productData.stock) > 0,
+      createdAt: new Date().toISOString()
+    };
+    products.unshift(newProduct);
+    setStoredProducts(products);
+    return { success: true, product: newProduct };
   },
 
   async updateProduct(id, productData) {
     try {
       const response = await API.put(`/products/${id}`, productData);
-      return response.data;
-    } catch {
-      const products = getStoredProducts();
-      const index = products.findIndex(p => p._id === id || p.id === id);
-      if (index !== -1) {
-        products[index] = {
-          ...products[index],
-          ...productData,
-          priceFormatted: `TZS ${Number(productData.price || products[index].price).toLocaleString()}`,
-          inStock: Number(productData.stock ?? products[index].stock) > 0
-        };
-        setStoredProducts(products);
-        return { success: true, product: products[index] };
+      if (response.data && response.data.product) {
+        const products = getStoredProducts();
+        const idx = products.findIndex(p => p._id === id || p.id === id);
+        if (idx !== -1) {
+          products[idx] = response.data.product;
+          setStoredProducts(products);
+        }
+        return response.data;
       }
-      throw new Error('Product not found for update');
+    } catch {
+      // Fallback
     }
+    const products = getStoredProducts();
+    const index = products.findIndex(p => p._id === id || p.id === id);
+    if (index !== -1) {
+      products[index] = {
+        ...products[index],
+        ...productData,
+        price: Number(productData.price || products[index].price),
+        priceFormatted: `TZS ${Number(productData.price || products[index].price).toLocaleString()}`,
+        inStock: Number(productData.stock ?? products[index].stock) > 0
+      };
+      setStoredProducts(products);
+      return { success: true, product: products[index] };
+    }
+    throw new Error('Product not found for update');
   },
 
   async deleteProduct(id) {
     try {
-      const response = await API.delete(`/products/${id}`);
-      return response.data;
+      await API.delete(`/products/${id}`);
     } catch {
-      let products = getStoredProducts();
-      products = products.filter(p => p._id !== id && p.id !== id);
-      setStoredProducts(products);
-      return { success: true, message: 'Product removed' };
+      // Fallback
     }
+    let products = getStoredProducts();
+    products = products.filter(p => p._id !== id && p.id !== id);
+    setStoredProducts(products);
+    return { success: true, message: 'Product removed' };
   }
 };
 
@@ -185,46 +227,64 @@ export const orderService = {
   async createOrder(orderData) {
     try {
       const response = await API.post('/orders', orderData);
-      return response.data;
+      if (response.data && response.data.order) {
+        const orders = getStoredOrders();
+        orders.unshift(response.data.order);
+        setStoredOrders(orders);
+        return response.data;
+      }
     } catch {
-      const orders = getStoredOrders();
-      const newOrder = {
-        ...orderData,
-        _id: `ORD-2026-${Math.floor(100 + Math.random() * 900)}`,
-        id: `ORD-2026-${Math.floor(100 + Math.random() * 900)}`,
-        status: 'Pending',
-        createdAt: new Date().toISOString()
-      };
-      orders.unshift(newOrder);
-      setStoredOrders(orders);
-      return { success: true, order: newOrder };
+      // Fallback
     }
+    const orders = getStoredOrders();
+    const newOrder = {
+      ...orderData,
+      _id: `ORD-2026-${Math.floor(100 + Math.random() * 900)}`,
+      id: `ORD-2026-${Math.floor(100 + Math.random() * 900)}`,
+      status: 'Pending',
+      createdAt: new Date().toISOString()
+    };
+    orders.unshift(newOrder);
+    setStoredOrders(orders);
+    return { success: true, order: newOrder };
   },
 
   async getAllOrders() {
     try {
       const response = await API.get('/orders');
-      return response.data;
+      if (response.data && Array.isArray(response.data.orders)) {
+        return response.data;
+      }
     } catch {
-      const orders = getStoredOrders();
-      return { success: true, count: orders.length, orders };
+      // Fallback
     }
+    const orders = getStoredOrders();
+    return { success: true, count: orders.length, orders };
   },
 
   async updateOrderStatus(id, status) {
     try {
       const response = await API.put(`/orders/${id}`, { status });
-      return response.data;
-    } catch {
-      const orders = getStoredOrders();
-      const index = orders.findIndex(o => o._id === id || o.id === id);
-      if (index !== -1) {
-        orders[index].status = status;
-        setStoredOrders(orders);
-        return { success: true, order: orders[index] };
+      if (response.data && response.data.order) {
+        const orders = getStoredOrders();
+        const idx = orders.findIndex(o => o._id === id || o.id === id);
+        if (idx !== -1) {
+          orders[idx].status = status;
+          setStoredOrders(orders);
+        }
+        return response.data;
       }
-      throw new Error('Order not found');
+    } catch {
+      // Fallback
     }
+    const orders = getStoredOrders();
+    const index = orders.findIndex(o => o._id === id || o.id === id);
+    if (index !== -1) {
+      orders[index].status = status;
+      setStoredOrders(orders);
+      return { success: true, order: orders[index] };
+    }
+    throw new Error('Order not found');
   }
 };
 
@@ -232,13 +292,16 @@ export const contactService = {
   async sendMessage(messageData) {
     try {
       const response = await API.post('/contact', messageData);
-      return response.data;
+      if (response.data) {
+        return response.data;
+      }
     } catch {
-      const stored = JSON.parse(localStorage.getItem('sgl_mock_messages') || '[]');
-      stored.unshift({ ...messageData, id: 'msg-' + Date.now(), createdAt: new Date().toISOString() });
-      localStorage.setItem('sgl_mock_messages', JSON.stringify(stored));
-      return { success: true, message: 'Message received by Seagull General Supply Limited team.' };
+      // Fallback
     }
+    const stored = JSON.parse(localStorage.getItem('sgl_mock_messages') || '[]');
+    stored.unshift({ ...messageData, id: 'msg-' + Date.now(), createdAt: new Date().toISOString() });
+    localStorage.setItem('sgl_mock_messages', JSON.stringify(stored));
+    return { success: true, message: 'Message received by Seagull General Supply Limited team.' };
   }
 };
 
@@ -246,21 +309,24 @@ export const authService = {
   async login(email, password) {
     try {
       const response = await API.post('/auth/login', { email, password });
-      return response.data;
-    } catch {
-      // Mock admin credentials check
-      if (email === 'admin@seagull.co.tz' && password === 'admin123') {
-        const mockToken = 'mock_jwt_token_seagull_admin_' + Date.now();
-        const user = {
-          id: 'usr-admin-01',
-          name: 'Seagull Admin Operations',
-          email: 'admin@seagull.co.tz',
-          role: 'admin'
-        };
-        return { success: true, token: mockToken, user };
+      if (response.data && response.data.token) {
+        return response.data;
       }
-      throw new Error('Invalid credentials. Use admin@seagull.co.tz / admin123');
+    } catch {
+      // Fallback
     }
+    // Mock admin credentials check
+    if (email === 'admin@seagull.co.tz' && password === 'admin123') {
+      const mockToken = 'mock_jwt_token_seagull_admin_' + Date.now();
+      const user = {
+        id: 'usr-admin-01',
+        name: 'Seagull Admin Operations',
+        email: 'admin@seagull.co.tz',
+        role: 'admin'
+      };
+      return { success: true, token: mockToken, user };
+    }
+    throw new Error('Invalid credentials. Use admin@seagull.co.tz / admin123');
   }
 };
 
