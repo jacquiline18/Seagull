@@ -5,13 +5,9 @@ import {
   Mail, 
   Globe, 
   Instagram, 
-  MapPin, 
-  Clock, 
   ShieldCheck, 
   Award, 
   ArrowRight, 
-  CheckCircle2,
-  Sparkles,
   FlaskConical
 } from 'lucide-react';
 import { COMPANY_INFO, CATEGORIES } from '../../data/sampleProducts';
@@ -37,52 +33,52 @@ export const Footer = () => {
         {/* Top Feature Accreditation Row */}
         <div 
           style={{
-            padding: '2rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            padding: 'clamp(1rem, 3vw, 1.75rem)',
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
             borderRadius: 'var(--radius-xl)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            marginBottom: '4rem',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            marginBottom: '3.5rem',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '1.5rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '1.25rem'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(0, 210, 255, 0.1)', color: '#00D2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <ShieldCheck size={26} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ShieldCheck size={24} />
             </div>
             <div>
-              <h5 style={{ color: '#FFFFFF', fontSize: '0.95rem', fontWeight: 700 }}>Certified Quality</h5>
-              <p style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>ISO & DIN standard compliant supplies</p>
+              <h5 style={{ color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 800 }}>Certified Quality</h5>
+              <p style={{ color: '#94A3B8', fontSize: '0.8rem' }}>ISO & DIN standard compliant supplies</p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(0, 210, 255, 0.1)', color: '#00D2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Award size={26} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Award size={24} />
             </div>
             <div>
-              <h5 style={{ color: '#FFFFFF', fontSize: '0.95rem', fontWeight: 700 }}>Services Beyond Measure</h5>
-              <p style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>Technical consultation & calibration</p>
+              <h5 style={{ color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 800 }}>Services Beyond Measure</h5>
+              <p style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Technical consultation & calibration</p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(0, 210, 255, 0.1)', color: '#00D2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <FlaskConical size={26} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <FlaskConical size={24} />
             </div>
             <div>
-              <h5 style={{ color: '#FFFFFF', fontSize: '0.95rem', fontWeight: 700 }}>Complete Lab Supply</h5>
-              <p style={{ color: '#94A3B8', fontSize: '0.8125rem' }}>Glassware, instruments & chemicals</p>
+              <h5 style={{ color: '#FFFFFF', fontSize: '0.92rem', fontWeight: 800 }}>Complete Lab Supply</h5>
+              <p style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Glassware, instruments & chemicals</p>
             </div>
           </div>
         </div>
 
         {/* 4 Main Footer Columns */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2.5rem' }}>
           {/* Column 1: Company Profile */}
           <div style={{ gridColumn: 'span 1' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <img src="/seagull-logo.svg" alt="Seagull Logo" style={{ width: '38px', height: '38px' }} />
               <div>
                 <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, color: '#FFFFFF', fontSize: '1.1rem', display: 'block', lineHeight: 1.1 }}>
@@ -95,11 +91,11 @@ export const Footer = () => {
             </div>
 
             <p style={{ fontSize: '0.875rem', color: '#94A3B8', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-              Specialized supplier of precision laboratory instruments, chemistry apparatus, glassware, scientific measuring tools, and consumables.
+              Specialized supplier of precision laboratory instruments, chemistry apparatus, glassware, scientific measuring tools, and consumables in Tanzania.
             </p>
 
-            <div style={{ display: 'inline-block', padding: '0.4rem 0.8rem', backgroundColor: 'rgba(0, 210, 255, 0.08)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(0, 210, 255, 0.2)' }}>
-              <span style={{ fontSize: '0.78rem', color: '#00D2FF', fontWeight: 700, fontStyle: 'italic' }}>
+            <div style={{ display: 'inline-block', padding: '0.4rem 0.8rem', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+              <span style={{ fontSize: '0.78rem', color: '#38BDF8', fontWeight: 700, fontStyle: 'italic' }}>
                 "{COMPANY_INFO.tagline}"
               </span>
             </div>
@@ -112,7 +108,7 @@ export const Footer = () => {
               {CATEGORIES.map(cat => (
                 <li key={cat.id}>
                   <Link to={`/products?category=${cat.id}`} className="footer-link">
-                    <ArrowRight size={13} color="#00D2FF" />
+                    <ArrowRight size={13} color="#38BDF8" />
                     <span>{cat.name}</span>
                   </Link>
                 </li>
@@ -126,37 +122,37 @@ export const Footer = () => {
             <ul className="footer-link-list">
               <li>
                 <Link to="/" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
+                  <ArrowRight size={13} color="#38BDF8" />
                   <span>Home</span>
                 </Link>
               </li>
               <li>
                 <Link to="/products" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
+                  <ArrowRight size={13} color="#38BDF8" />
                   <span>All Products</span>
                 </Link>
               </li>
               <li>
+                <Link to="/order-request" className="footer-link">
+                  <ArrowRight size={13} color="#38BDF8" />
+                  <span>Request Order / Quotation</span>
+                </Link>
+              </li>
+              <li>
                 <Link to="/about" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
+                  <ArrowRight size={13} color="#38BDF8" />
                   <span>About Seagull</span>
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
+                  <ArrowRight size={13} color="#38BDF8" />
                   <span>Contact Us</span>
                 </Link>
               </li>
               <li>
-                <Link to="/cart" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
-                  <span>View Cart</span>
-                </Link>
-              </li>
-              <li>
                 <Link to="/admin/login" className="footer-link">
-                  <ArrowRight size={13} color="#00D2FF" />
+                  <ArrowRight size={13} color="#38BDF8" />
                   <span>Staff & Admin Portal</span>
                 </Link>
               </li>
@@ -166,21 +162,21 @@ export const Footer = () => {
           {/* Column 4: Contact & Newsletter */}
           <div>
             <h4>Contact Details</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
               <a href={`tel:${COMPANY_INFO.phoneClean}`} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#E2E8F0' }}>
-                <Phone size={16} color="#00D2FF" />
+                <Phone size={15} color="#38BDF8" />
                 <span>{COMPANY_INFO.phone}</span>
               </a>
-              <a href={`mailto:${COMPANY_INFO.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#E2E8F0' }}>
-                <Mail size={16} color="#00D2FF" />
+              <a href={`mailto:${COMPANY_INFO.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#E2E8F0', wordBreak: 'break-all' }}>
+                <Mail size={15} color="#38BDF8" />
                 <span>{COMPANY_INFO.email}</span>
               </a>
               <a href="https://www.seagull.co.tz" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#E2E8F0' }}>
-                <Globe size={16} color="#00D2FF" />
+                <Globe size={15} color="#38BDF8" />
                 <span>{COMPANY_INFO.website}</span>
               </a>
               <a href={COMPANY_INFO.instagramUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#E2E8F0' }}>
-                <Instagram size={16} color="#E1306C" />
+                <Instagram size={15} color="#E1306C" />
                 <span>Instagram: @{COMPANY_INFO.instagram}</span>
               </a>
             </div>
@@ -188,7 +184,7 @@ export const Footer = () => {
             <h5 style={{ color: '#FFFFFF', fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 600 }}>
               Stay Updated with Catalog Releases
             </h5>
-            <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '0.4rem' }}>
+            <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
               <input 
                 type="email" 
                 placeholder="Your email address..." 
@@ -202,7 +198,8 @@ export const Footer = () => {
                   borderRadius: 'var(--radius-sm)',
                   color: '#FFFFFF',
                   fontSize: '0.85rem',
-                  flex: 1
+                  flex: 1,
+                  minWidth: '130px'
                 }}
               />
               <button type="submit" className="btn btn-cyan btn-sm">
@@ -218,8 +215,8 @@ export const Footer = () => {
             © {new Date().getFullYear()} <strong>Seagull General Supply Limited</strong>. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <span style={{ color: '#64748B' }}>Dar es Salaam, Tanzania</span>
-            <span style={{ color: '#00D2FF' }}>Services Beyond Measure!</span>
+            <span style={{ color: '#94A3B8' }}>Dar es Salaam, Tanzania</span>
+            <span style={{ color: '#38BDF8', fontWeight: 700 }}>Services Beyond Measure!</span>
           </div>
         </div>
       </div>

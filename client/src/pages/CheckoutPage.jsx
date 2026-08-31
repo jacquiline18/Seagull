@@ -4,20 +4,13 @@ import {
   CheckCircle2, 
   ArrowLeft, 
   Send, 
-  Building2, 
-  Phone, 
-  Mail, 
-  MapPin, 
   FileText, 
   ShieldCheck, 
-  Download, 
-  MessageSquare,
-  AlertCircle
+  Printer
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNotification } from '../context/NotificationContext';
 import { orderService } from '../services/api';
-import { COMPANY_INFO } from '../data/sampleProducts';
 
 export const CheckoutPage = () => {
   const { cartItems, subtotal, subtotalFormatted, clearCart, formatCurrency } = useCart();
@@ -88,93 +81,74 @@ export const CheckoutPage = () => {
     return (
       <div className="section-sm science-grid-bg" style={{ minHeight: '80vh' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
-          <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', backgroundColor: '#FFFFFF' }}>
+          <div className="card" style={{ padding: 'clamp(1.5rem, 4vw, 3rem)', textAlign: 'center', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }}>
             <div 
               style={{
-                width: '76px',
-                height: '76px',
+                width: '68px',
+                height: '68px',
                 borderRadius: 'var(--radius-full)',
-                backgroundColor: 'var(--color-success-bg)',
-                color: 'var(--color-success)',
+                backgroundColor: '#ECFDF5',
+                color: '#10B981',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem auto'
+                margin: '0 auto 1.25rem auto'
               }}
             >
-              <CheckCircle2 size={44} />
+              <CheckCircle2 size={40} />
             </div>
 
-            <span className="section-tag" style={{ backgroundColor: 'var(--color-success-bg)', color: '#065F46', borderColor: '#A7F3D0' }}>
+            <span className="section-tag" style={{ backgroundColor: '#ECFDF5', color: '#065F46', borderColor: '#A7F3D0' }}>
               Order Request Confirmed
             </span>
 
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary-950)', margin: '0.75rem 0' }}>
+            <h1 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2rem)', fontWeight: 800, color: '#0A192F', margin: '0.75rem 0' }}>
               Order Request Submitted Successfully!
             </h1>
 
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '520px', margin: '0 auto 2rem auto' }}>
+            <p style={{ color: '#475569', fontSize: '1rem', lineHeight: 1.6, maxWidth: '520px', margin: '0 auto 2rem auto' }}>
               Thank you, <strong>{completedOrder.customer.name}</strong>. Seagull General Supply Limited has received your order request. A sales representative will review your item requirements and contact you with the proforma invoice.
             </p>
 
             {/* Order Reference Card */}
-            <div 
-              style={{
-                padding: '1.5rem',
-                backgroundColor: 'var(--color-primary-50)',
-                border: '1px solid var(--color-primary-200)',
-                borderRadius: 'var(--radius-lg)',
-                marginBottom: '2rem',
-                textAlign: 'left'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-primary-200)' }}>
+            <div style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #CBD5E1', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', textAlign: 'left' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E2E8F0', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-primary-700)', textTransform: 'uppercase', fontWeight: 700 }}>
-                    Order Reference ID
-                  </span>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-primary-900)', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>ORDER REFERENCE</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-mono)' }}>
                     {completedOrder._id || completedOrder.id}
                   </div>
                 </div>
-                <span className="badge badge-featured">Pending Verification</span>
+                <div style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748B' }}>
+                  Status: <strong style={{ color: '#F59E0B' }}>Pending Verification</strong>
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: 'var(--color-text-muted)', display: 'block' }}>Institution / Client:</span>
-                  <strong>{completedOrder.customer.company || completedOrder.customer.name}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--color-text-muted)', display: 'block' }}>Email Address:</span>
-                  <strong>{completedOrder.customer.email}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--color-text-muted)', display: 'block' }}>Phone Contact:</span>
-                  <strong>{completedOrder.customer.phone}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--color-text-muted)', display: 'block' }}>Estimated Total:</span>
-                  <strong>{formatCurrency(completedOrder.totalAmount)}</strong>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
+                {completedOrder.products.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#334155' }}>
+                    <span>{item.quantity} × {item.name}</span>
+                    <strong style={{ color: '#0A192F' }}>{formatCurrency(item.price * item.quantity)}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ borderTop: '2px dashed #CBD5E1', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 800, fontSize: '1rem', color: '#0A192F' }}>Total Estimated Amount:</span>
+                <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-mono)' }}>
+                  {formatCurrency(completedOrder.totalAmount)}
+                </span>
               </div>
             </div>
 
-            {/* Next Steps Buttons */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/products" className="btn btn-primary">
-                Return to Product Catalogue
+              <button onClick={() => window.print()} className="btn btn-secondary" style={{ gap: '0.4rem' }}>
+                <Printer size={16} />
+                <span>Print Confirmation</span>
+              </button>
+              <Link to="/products" className="btn btn-primary" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
+                Browse More Equipment
               </Link>
-              <a 
-                href={`https://wa.me/255743611101?text=Hello%20Seagull%20General%20Supply,%20I%20have%20submitted%20order%20reference%20${completedOrder._id || completedOrder.id}`} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn btn-secondary"
-                style={{ gap: '0.4rem' }}
-              >
-                <MessageSquare size={16} />
-                <span>Confirm on WhatsApp</span>
-              </a>
             </div>
           </div>
         </div>
@@ -186,18 +160,18 @@ export const CheckoutPage = () => {
     <div className="checkout-page-root section-sm science-grid-bg" style={{ minHeight: '80vh' }}>
       <div className="container">
         <div style={{ marginBottom: '2rem' }}>
-          <Link to="/cart" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary-600)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '1rem' }}>
+          <Link to="/cart" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#0369A1', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem' }}>
             <ArrowLeft size={16} />
             <span>Back to Cart</span>
           </Link>
-          <span className="section-tag" style={{ display: 'block', width: 'fit-content' }}>Formal Procurement</span>
-          <h1 className="section-title">Submit Order / Institutional Request</h1>
+          <span className="section-tag" style={{ display: 'block', width: 'fit-content', backgroundColor: '#E0F2FE', color: '#0369A1' }}>Formal Procurement</span>
+          <h1 className="section-title" style={{ color: '#0A192F', marginBottom: '0.35rem' }}>Submit Order / Institutional Request</h1>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: '2.5rem', alignItems: 'start' }} className="checkout-layout-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem', alignItems: 'start' }} className="checkout-layout-grid">
           {/* Left Checkout Form */}
-          <div className="card" style={{ padding: '2rem', backgroundColor: '#FFFFFF' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-border)' }}>
+          <div className="card" style={{ padding: 'clamp(1.25rem, 3vw, 2rem)', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0A192F', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E2E8F0' }}>
               1. Customer & Institutional Information
             </h3>
 
@@ -282,68 +256,69 @@ export const CheckoutPage = () => {
                 />
               </div>
 
-              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting || cartItems.length === 0} 
-                  className="btn btn-primary btn-block btn-lg"
-                  style={{ gap: '0.5rem' }}
-                >
-                  {isSubmitting ? (
-                    <span>Submitting Order Request...</span>
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      <span>Submit Order Request</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="btn btn-primary btn-block btn-lg"
+                style={{ marginTop: '1rem', gap: '0.5rem', backgroundColor: '#1B4268', borderColor: '#1B4268' }}
+              >
+                {isSubmitting ? (
+                  <span>Processing Request...</span>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    <span>Submit Institutional Order Request</span>
+                  </>
+                )}
+              </button>
             </form>
           </div>
 
-          {/* Right Order Review Box */}
-          <div className="card" style={{ padding: '1.75rem', backgroundColor: '#FFFFFF', position: 'sticky', top: '100px' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-border)' }}>
-              Order Review ({cartItems.length} Products)
+          {/* Right Order Review Sidebar */}
+          <div className="card" style={{ padding: 'clamp(1.25rem, 3vw, 1.75rem)', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', position: 'sticky', top: '100px' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0A192F', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E2E8F0' }}>
+              Order Review ({cartItems.length} items)
             </h3>
 
-            {/* Mini Items List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '280px', overflowY: 'auto', marginBottom: '1.5rem' }}>
-              {cartItems.map(item => {
-                const itemPrice = typeof item.price === 'number' ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, ''), 10) || 0;
-                return (
-                  <div key={item._id || item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                    <div style={{ flex: 1, paddingRight: '0.5rem' }}>
-                      <div style={{ fontWeight: 700, color: 'var(--color-primary-950)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
-                        {item.name}
-                      </div>
-                      <div style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>
-                        Qty: {item.quantity} × {formatCurrency(itemPrice)}
-                      </div>
-                    </div>
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary-900)' }}>
-                      {formatCurrency(itemPrice * item.quantity)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '280px', overflowY: 'auto', marginBottom: '1.25rem', paddingRight: '0.25rem' }}>
+              {cartItems.map(item => (
+                <div key={item._id || item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem' }}>
+                  <img src={item.image} alt={item.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid #CBD5E1' }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h5 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0A192F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+                      {item.name}
+                    </h5>
+                    <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                      Qty: {item.quantity} × {formatCurrency(item.price)}
                     </div>
                   </div>
-                );
-              })}
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#1B4268', fontFamily: 'var(--font-mono)' }}>
+                    {formatCurrency(item.price * item.quantity)}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Calculation */}
-            <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Estimated Amount</span>
-                <span style={{ fontWeight: 800, color: 'var(--color-primary-900)' }}>{subtotalFormatted}</span>
+                <span style={{ color: '#64748B' }}>Estimated Subtotal</span>
+                <span style={{ fontWeight: 800, color: '#0A192F' }}>{subtotalFormatted}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
-                <span>Official Proforma Invoice</span>
-                <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>Sent via Email</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748B' }}>Institutional Verification</span>
+                <span style={{ color: '#059669', fontWeight: 700 }}>Included</span>
+              </div>
+              <div style={{ paddingTop: '0.75rem', borderTop: '2px dashed #CBD5E1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0A192F' }}>Total Estimate:</span>
+                <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-mono)' }}>
+                  {subtotalFormatted}
+                </span>
               </div>
             </div>
 
-            <div style={{ marginTop: '1.5rem', padding: '0.85rem', backgroundColor: 'var(--color-primary-50)', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--color-primary-800)' }}>
-              <strong>Direct Inquiries:</strong> Call +255 (0) 743 611 101 or email seagull.tech20@gmail.com for expedited quotation processing.
+            <div style={{ padding: '0.75rem', backgroundColor: '#F0F9FF', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: '#1B4268', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid #BAE6FD' }}>
+              <ShieldCheck size={16} color="#1B4268" style={{ flexShrink: 0 }} />
+              <span>Official invoice with EFD / VAT compliance will be issued prior to payment.</span>
             </div>
           </div>
         </div>

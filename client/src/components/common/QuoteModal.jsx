@@ -81,18 +81,18 @@ export const QuoteModal = () => {
     <div className="modal-overlay" onClick={closeQuoteModal}>
       <div 
         className="modal-content" 
-        style={{ maxWidth: '640px' }} 
+        style={{ maxWidth: '640px', padding: 'clamp(1.25rem, 3vw, 2rem)', backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1' }} 
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-header">
+        <div className="modal-header" style={{ marginBottom: '1.25rem', paddingBottom: '0.85rem', borderBottom: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', background: '#E0F2FE', color: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <FileText size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Request Official Quotation</h3>
-              <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
-                Seagull General Supply Limited • Services Beyond Measure!
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0A192F', margin: 0 }}>Request Official Quotation</h3>
+              <p style={{ fontSize: '0.78rem', color: '#64748B', margin: 0 }}>
+                Seagull General Supply Limited • "Services Beyond Measure!"
               </p>
             </div>
           </div>
@@ -103,25 +103,25 @@ export const QuoteModal = () => {
 
         {submittedSuccess ? (
           <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-            <div style={{ width: '68px', height: '68px', borderRadius: 'var(--radius-full)', background: 'var(--color-success-bg)', color: 'var(--color-success)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-              <CheckCircle2 size={40} />
+            <div style={{ width: '64px', height: '64px', borderRadius: 'var(--radius-full)', background: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+              <CheckCircle2 size={38} />
             </div>
-            <h4 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-primary-900)', marginBottom: '0.5rem' }}>
+            <h4 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0A192F', marginBottom: '0.5rem' }}>
               Quotation Request Received!
             </h4>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', maxWidth: '440px', margin: '0 auto 1.5rem auto' }}>
+            <p style={{ color: '#475569', fontSize: '0.95rem', maxWidth: '440px', margin: '0 auto 1.5rem auto' }}>
               Our scientific sales engineers have received your inquiry. A formal proforma invoice with technical specifications will be dispatched to <strong>{formData.email}</strong>.
             </p>
 
-            <div style={{ padding: '1rem', backgroundColor: 'var(--color-bg-subtle)', borderRadius: 'var(--radius-md)', display: 'inline-block', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block' }}>QUOTE REFERENCE CODE</span>
-              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary-600)', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: 'var(--radius-md)', display: 'inline-block', marginBottom: '1.75rem', border: '1px solid #CBD5E1' }}>
+              <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block', fontWeight: 700 }}>QUOTE REFERENCE CODE</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-mono)' }}>
                 {quoteRefNumber}
               </span>
             </div>
 
             <div>
-              <button onClick={closeQuoteModal} className="btn btn-primary">
+              <button onClick={closeQuoteModal} className="btn btn-primary" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
                 Return to Catalog
               </button>
             </div>
@@ -129,11 +129,11 @@ export const QuoteModal = () => {
         ) : (
           <form onSubmit={handleSubmit}>
             {quoteModalProduct && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1rem', backgroundColor: 'var(--color-primary-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-primary-200)', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1rem', backgroundColor: '#F0F9FF', borderRadius: 'var(--radius-md)', border: '1px solid #BAE6FD', marginBottom: '1.25rem' }}>
                 <img src={quoteModalProduct.image} alt={quoteModalProduct.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary-900)' }}>{quoteModalProduct.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-primary-700)' }}>SKU: {quoteModalProduct.sku} • {quoteModalProduct.category}</div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0A192F' }}>{quoteModalProduct.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#0369A1', fontWeight: 600 }}>SKU: {quoteModalProduct.sku} • {quoteModalProduct.category}</div>
                 </div>
               </div>
             )}
@@ -188,7 +188,7 @@ export const QuoteModal = () => {
                   required 
                   value={formData.organization} 
                   onChange={handleChange} 
-                  placeholder="e.g. UDSM / Aga Khan Hospital / Mine Lab" 
+                  placeholder="e.g. UDSM / Aga Khan / Lab" 
                   className="form-input" 
                 />
               </div>
@@ -214,7 +214,7 @@ export const QuoteModal = () => {
                   name="deliveryLocation" 
                   value={formData.deliveryLocation} 
                   onChange={handleChange} 
-                  placeholder="e.g. Dar es Salaam, Dodoma, Mwanza, Arusha" 
+                  placeholder="e.g. Dar es Salaam, Dodoma, Mwanza" 
                   className="form-input" 
                 />
               </div>
@@ -232,11 +232,11 @@ export const QuoteModal = () => {
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
-              <button type="button" onClick={closeQuoteModal} className="btn btn-secondary">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #E2E8F0', flexWrap: 'wrap' }}>
+              <button type="button" onClick={closeQuoteModal} className="btn btn-secondary" style={{ backgroundColor: '#F8FAFC', color: '#0A192F', borderColor: '#CBD5E1' }}>
                 Cancel
               </button>
-              <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+              <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ backgroundColor: '#1B4268', borderColor: '#1B4268' }}>
                 {isSubmitting ? (
                   <span>Processing Request...</span>
                 ) : (

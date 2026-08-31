@@ -14,11 +14,10 @@ import {
   Layers, 
   Gauge, 
   TestTubes, 
-  FileText,
-  Search,
-  ChevronRight,
-  Activity,
-  Check
+  FileText, 
+  Search, 
+  ChevronRight, 
+  Activity
 } from 'lucide-react';
 import { CATEGORIES, SAMPLE_PRODUCTS, COMPANY_INFO } from '../data/sampleProducts';
 import { ProductCard } from '../components/product/ProductCard';
@@ -80,15 +79,15 @@ export const HomePage = () => {
         className="section science-grid-bg" 
         style={{
           position: 'relative',
-          paddingTop: '4rem',
-          paddingBottom: '5rem',
+          paddingTop: 'clamp(2.5rem, 5vw, 4rem)',
+          paddingBottom: 'clamp(3rem, 6vw, 5rem)',
           overflow: 'hidden',
           background: 'linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 50%, #E0F2FE 100%)',
           borderBottom: '1px solid #E2E8F0'
         }}
       >
         <div className="container" style={{ position: 'relative', zIndex: 5 }}>
-          <div className="grid-2" style={{ alignItems: 'center', gap: '3.5rem' }}>
+          <div className="grid-2" style={{ alignItems: 'center', gap: '3rem' }}>
             {/* Left Content Column */}
             <div>
               {/* Premier Tanzania Supplier Tag */}
@@ -97,14 +96,14 @@ export const HomePage = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  padding: '0.45rem 1.1rem',
+                  padding: '0.45rem 1rem',
                   marginBottom: '1.25rem',
                   background: '#E0F2FE',
                   color: '#0369A1',
                   borderRadius: 'var(--radius-full)',
                   border: '1px solid #BAE6FD',
                   fontWeight: 700,
-                  fontSize: '0.85rem'
+                  fontSize: '0.82rem'
                 }}
               >
                 <Sparkles size={16} color="#0284C7" />
@@ -114,7 +113,7 @@ export const HomePage = () => {
               {/* High Contrast Dark/Black Headline */}
               <h1 
                 style={{
-                  fontSize: 'clamp(2.4rem, 4.5vw, 3.6rem)',
+                  fontSize: 'clamp(2rem, 4.5vw, 3.5rem)',
                   fontWeight: 800,
                   color: '#0A192F',
                   lineHeight: 1.15,
@@ -128,10 +127,10 @@ export const HomePage = () => {
               {/* Crisp Subtitle */}
               <p 
                 style={{
-                  fontSize: '1.15rem',
+                  fontSize: '1.1rem',
                   color: '#334155',
                   lineHeight: 1.6,
-                  marginBottom: '2rem',
+                  marginBottom: '1.75rem',
                   maxWidth: '560px',
                   fontWeight: 400
                 }}
@@ -148,13 +147,14 @@ export const HomePage = () => {
                   backgroundColor: '#FFFFFF',
                   padding: '0.4rem 0.4rem 0.4rem 1rem',
                   borderRadius: 'var(--radius-lg)',
-                  border: '1px solid #CBD5E1',
+                  border: '1.5px solid #CBD5E1',
                   boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
-                  marginBottom: '2rem',
-                  maxWidth: '520px'
+                  marginBottom: '1.75rem',
+                  maxWidth: '520px',
+                  flexWrap: 'wrap'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '0.5rem', minWidth: '180px' }}>
                   <Search size={18} color="#0284C7" />
                   <input 
                     type="text" 
@@ -189,18 +189,18 @@ export const HomePage = () => {
               </div>
 
               {/* Trust Micro-Metrics */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', marginTop: '2.5rem', paddingTop: '1.75rem', borderTop: '1px solid #E2E8F0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #E2E8F0', flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>500+</div>
-                  <div style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>Scientific Supplies</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>500+</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Scientific Supplies</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>350+</div>
-                  <div style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>Labs Equipped</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>350+</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Labs Equipped</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>100%</div>
-                  <div style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>Original Products</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1B4268', fontFamily: 'var(--font-heading)' }}>100%</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Original Products</div>
                 </div>
               </div>
             </div>
@@ -220,58 +220,33 @@ export const HomePage = () => {
                 <img 
                   src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" 
                   alt="Precision Laboratory Equipment" 
-                  style={{ width: '100%', height: '440px', objectFit: 'cover' }}
+                  style={{ width: '100%', height: 'clamp(280px, 35vw, 440px)', objectFit: 'cover' }}
                 />
 
-                {/* Floating Glassmorphic Laboratory Floating Badge 1 */}
+                {/* Floating Glassmorphic Laboratory Floating Badge */}
                 <div 
                   style={{
                     position: 'absolute',
-                    top: '1.5rem',
-                    right: '1.5rem',
-                    padding: '0.85rem 1.2rem',
+                    bottom: '1rem',
+                    left: '1rem',
+                    right: '1rem',
+                    padding: '0.75rem 1rem',
                     borderRadius: 'var(--radius-md)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
-                    background: 'rgba(255, 255, 255, 0.95)',
+                    background: 'rgba(255, 255, 255, 0.96)',
                     backdropFilter: 'blur(8px)',
                     border: '1px solid #E2E8F0',
                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)'
                   }}
                 >
-                  <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-full)', background: '#E0F2FE', color: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ShieldCheck size={20} />
+                  <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-full)', background: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Activity size={18} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#0284C7', fontWeight: 700 }}>VERIFIED STANDARD</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0A192F' }}>ISO & DIN Certified</div>
-                  </div>
-                </div>
-
-                {/* Floating Glassmorphic Laboratory Floating Badge 2 */}
-                <div 
-                  style={{
-                    position: 'absolute',
-                    bottom: '1.5rem',
-                    left: '1.5rem',
-                    padding: '0.85rem 1.2rem',
-                    borderRadius: 'var(--radius-md)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid #E2E8F0',
-                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)'
-                  }}
-                >
-                  <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-full)', background: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Activity size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>SEAGULL GUARANTEE</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0A192F' }}>Services Beyond Measure!</div>
+                    <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 800 }}>SEAGULL GUARANTEE</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0A192F' }}>Services Beyond Measure!</div>
                   </div>
                 </div>
               </div>
@@ -459,16 +434,16 @@ export const HomePage = () => {
             <span>Need Custom Lab Setup or Bulk Institutional Pricing?</span>
           </div>
 
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#FFFFFF', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.2 }}>
+          <h2 style={{ fontSize: 'clamp(1.85rem, 4vw, 2.8rem)', color: '#FFFFFF', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.2 }}>
             Need Laboratory Equipment?
           </h2>
 
-          <p style={{ fontSize: '1.15rem', color: '#E2E8F0', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1.1rem', color: '#E2E8F0', marginBottom: '2rem', lineHeight: 1.6 }}>
             Talk to our experienced team today. We provide itemized quotations, technical datasheets, and fast procurement assistance.
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/contact" className="btn btn-cyan btn-lg" style={{ backgroundColor: '#2E8BC9', color: '#FFFFFF', borderColor: '#2E8BC9' }}>
+            <Link to="/contact" className="btn btn-cyan btn-lg" style={{ backgroundColor: '#0284C7', color: '#FFFFFF', borderColor: '#0284C7' }}>
               <span>Contact Us</span>
               <ArrowRight size={18} />
             </Link>
