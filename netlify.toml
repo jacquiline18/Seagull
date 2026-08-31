@@ -1,11 +1,12 @@
 [build]
-  command = "cd client && npm install && npm run build"
+  command = "npm --prefix server install && npm --prefix client install && npm --prefix client run build"
   publish = "client/dist"
   functions = "server/netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
   included_files = ["server/**"]
+  external_node_modules = ["express", "mongoose", "serverless-http", "cors", "dotenv", "bcryptjs", "jsonwebtoken"]
 
 # Redirect API requests to the serverless Netlify Function
 [[redirects]]
@@ -19,3 +20,4 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
