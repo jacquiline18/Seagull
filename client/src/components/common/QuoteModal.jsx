@@ -2,21 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Send, 
-  FileCheck, 
   CheckCircle2, 
-  Building2, 
-  Phone, 
-  Mail, 
-  User, 
-  FileText,
-  AlertCircle
+  FileText
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
 import { contactService } from '../../services/api';
 
 export const QuoteModal = () => {
-  const { quoteModalProduct, closeQuoteModal } = useCart();
+  const { isQuoteModalOpen, quoteModalProduct, closeQuoteModal } = useCart();
   const { toastSuccess, toastError } = useNotification();
 
   const [formData, setFormData] = useState({
@@ -54,7 +48,7 @@ export const QuoteModal = () => {
     setSubmittedSuccess(false);
   }, [quoteModalProduct]);
 
-  if (!quoteModalProduct && !quoteModalProduct === undefined) return null;
+  if (!isQuoteModalOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

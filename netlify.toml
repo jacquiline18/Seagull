@@ -1,5 +1,5 @@
 [build]
-  command = "npm --prefix server install && npm --prefix client install && npm --prefix client run build"
+  command = "npm install && npm --prefix server install && npm --prefix client install && npm --prefix client run build"
   publish = "client/dist"
   functions = "server/netlify/functions"
 
@@ -8,16 +8,15 @@
   included_files = ["server/**"]
   external_node_modules = ["express", "mongoose", "serverless-http", "cors", "dotenv", "bcryptjs", "jsonwebtoken"]
 
-# Redirect API requests to the serverless Netlify Function
+# Redirect API requests to the unified serverless Netlify Function
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
-# Single Page App (SPA) redirect for React Router
+# Single Page Application (SPA) fallback for React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-

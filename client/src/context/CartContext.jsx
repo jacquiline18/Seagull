@@ -12,6 +12,7 @@ export const CartProvider = ({ children }) => {
     }
   });
 
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [quoteModalProduct, setQuoteModalProduct] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
@@ -69,9 +70,11 @@ export const CartProvider = ({ children }) => {
 
   const openQuoteModal = (product = null) => {
     setQuoteModalProduct(product);
+    setIsQuoteModalOpen(true);
   };
 
   const closeQuoteModal = () => {
+    setIsQuoteModalOpen(false);
     setQuoteModalProduct(null);
   };
 
@@ -95,6 +98,7 @@ export const CartProvider = ({ children }) => {
         subtotal,
         subtotalFormatted: formatCurrency(subtotal),
         formatCurrency,
+        isQuoteModalOpen,
         quoteModalProduct,
         openQuoteModal,
         closeQuoteModal,
